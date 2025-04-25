@@ -6,24 +6,23 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define CURRENCY_NAME "Money"  
-#define GAME_WIDTH 1280
-#define GAME_HEIGHT 800
-
-void loadCurrencyText(char* buf, char* currency_name, uint64_t currency_amount); 
-void drawSectionOutlines();
+#include "config.h"
+#include "draw.h"
 
 int main () {
+  int game_width = GAME_WIDTH_INIT;
+  int game_height = GAME_HEIGHT_INIT;
+ 
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(1280, 800, "Hello Idleizer");
+	InitWindow(game_width, game_height, "Hello Idleizer");
 	SearchAndSetResourceDir("resources");
 
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
  
-  uint64_t currency_amount = 0;
+  int currency_amount = CURRENCY_AMOUNT_DEFAULT;
   char currency_amount_text[100];
 
   // game loop
@@ -31,26 +30,18 @@ int main () {
 		BeginDrawing();
 		ClearBackground(WHITE);
 
-    drawSectionOutlines();
+    drawSectionOutlines(game_width, game_height);
 
-    loadCurrencyText(currency_amount_text, CURRENCY_NAME, currency_amount); 
-    DrawText(currency_amount_text, 200, 200, 20, BLACK);
+    sprintf(currency_amount_text, "%s: %llu", CURRENCY_NAME, currency_amount);
+    DrawText(currency_amount_text, 200, 200, 20, RED);
 
 		DrawTexture(wabbit, 400, 200, WHITE);
 		
 		EndDrawing();
+    currency_amount++;
 	}
 
 	UnloadTexture(wabbit);
 	CloseWindow();
 	return 0;
-}
-
-void loadCurrencyText(char* buf, char* currency_name, uint64_t currency_amount) {
-    sprintf(buf, "%s: %llu", currency_name, currency_amount);
-}
-
-void drawSectionOutlines() {
-  int divX = GAME_WIDTH / 2;
-  DrawLine(divX, 0, divX, GAME_HEIGHT, BLACK);
 }
