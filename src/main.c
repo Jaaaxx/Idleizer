@@ -1,10 +1,17 @@
 #include "raylib.h"
-
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 
-#ifndef CURRENCY_NAME
+#include <string.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
+
 #define CURRENCY_NAME "Money"  
-#endif
+#define GAME_WIDTH 1280
+#define GAME_HEIGHT 800
+
+void loadCurrencyText(char* buf, char* currency_name, uint64_t currency_amount); 
+void drawSectionOutlines();
 
 int main () {
 	// Tell the window to use vsync and work on high DPI displays
@@ -16,16 +23,18 @@ int main () {
 
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
  
-  const char* currency_text = CURRENCY_NAME; 
-  const int text_width = MeasureText(currency_text, 20);
-	
+  uint64_t currency_amount = 0;
+  char currency_amount_text[100];
+
   // game loop
 	while (!WindowShouldClose()) {
 		BeginDrawing();
 		ClearBackground(WHITE);
 
-		DrawText(currency_text, 200, 200, 20, BLACK);
-		DrawText(": 100", 200 + 10 + text_width, 200, 20, BLACK);
+    drawSectionOutlines();
+
+    loadCurrencyText(currency_amount_text, CURRENCY_NAME, currency_amount); 
+    DrawText(currency_amount_text, 200, 200, 20, BLACK);
 
 		DrawTexture(wabbit, 400, 200, WHITE);
 		
@@ -35,4 +44,13 @@ int main () {
 	UnloadTexture(wabbit);
 	CloseWindow();
 	return 0;
+}
+
+void loadCurrencyText(char* buf, char* currency_name, uint64_t currency_amount) {
+    sprintf(buf, "%s: %llu", currency_name, currency_amount);
+}
+
+void drawSectionOutlines() {
+  int divX = GAME_WIDTH / 2;
+  DrawLine(divX, 0, divX, GAME_HEIGHT, BLACK);
 }
