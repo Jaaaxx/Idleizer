@@ -24,9 +24,19 @@ int main () {
  
   int currency_amount = CURRENCY_AMOUNT_DEFAULT;
   char currency_amount_text[100];
-
+  int mouseBtn = -1;
   // game loop
 	while (!WindowShouldClose()) {
+    // controls
+    if (CheckCollisionPointRec(GetMousePosition(), *PRIMARY_BUTTON.rect)) {
+      if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && mouseBtn != 1) {
+        currency_amount++;
+        mouseBtn = 1;
+      } else if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+        mouseBtn = -1;
+      }
+    }
+    // drawing
 		BeginDrawing();
 		ClearBackground(WHITE);
 
@@ -34,11 +44,10 @@ int main () {
 
     sprintf(currency_amount_text, "%s: %llu", CURRENCY_NAME, currency_amount);
     DrawText(currency_amount_text, 200, 200, 20, RED);
-
+    drawButton(&PRIMARY_BUTTON);
 		DrawTexture(wabbit, 400, 200, WHITE);
 		
 		EndDrawing();
-    currency_amount++;
 	}
 
 	UnloadTexture(wabbit);
