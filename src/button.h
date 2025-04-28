@@ -2,11 +2,14 @@
 #define BUTTON_H
 
 #include "raylib.h"
+#include "vr_rec.h"
+#include "section.h"
 
 typedef struct {
-  Rectangle* rec;
+  VrRec rec;
   char* text;
   void (*handler)();
+  Section* sec;
 } Button;
 
 #endif

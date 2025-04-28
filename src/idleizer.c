@@ -1,16 +1,16 @@
 #include "idleizer.h"
 
-void runGame(int game_width, int game_height) {
+void runGame(int game_width, int game_height, char* title) {
+  setGameSize(game_width, game_height);
+  //
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
   SetTargetFPS(60);
 
 	// Create the window and OpenGL context
-	InitWindow(game_width, game_height, "Hello Idleizer");
+	InitWindow(game_width, game_height, title);
 	SearchAndSetResourceDir("resources");
 
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
- 
   char currency_amount_text[100];
   int mouseBtn = -1;
   // game loop
@@ -19,19 +19,19 @@ void runGame(int game_width, int game_height) {
     mouseButtonsHandler(BUTTONS, BUTTONS_COUNT, &mouseBtn);
     // drawing
 		BeginDrawing();
-
 		ClearBackground(WHITE);
-    drawSectionOutlines(game_width, game_height);
+
+    drawSections(SECTIONS, SECTIONS_COUNT);
     drawLabels(LABELS, LABELS_COUNT);
     drawCurrencies(CURRENCIES, CURRENCIES_COUNT);
     drawButtons(BUTTONS, BUTTONS_COUNT);
+   
+    // handles the logic for and draws tickers
     handleTickers(TICKERS, TICKERS_COUNT);
-		DrawTexture(wabbit, 400, 200, WHITE);
 		
 		EndDrawing();
 	}
-
-	UnloadTexture(wabbit);
+  
 	CloseWindow();
 }
 
@@ -53,4 +53,9 @@ void setupTickers(Ticker* tickers, int count) {
 void setupLabels(Label* labels, int count) {
   LABELS = labels;
   LABELS_COUNT = count;
+}
+
+void setupSections(Section* sections, int count) {
+  SECTIONS = sections;
+  SECTIONS_COUNT = count;
 }

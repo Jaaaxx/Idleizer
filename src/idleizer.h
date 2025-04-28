@@ -14,12 +14,14 @@
 #include "game.h"
 #include "draw.h"
 #include "ticker.h"
+#include "section.h"
 
-void runGame(int game_width, int game_height);
+
+void runGame(int game_width, int game_height, char* title);
 
 void setupCurrencies(Currency* currencies, int count);
 void setupButtons(Button* buttons, int count);
 void setupTickers(Ticker* tickers, int count);
 void setupLabels(Label* labels, int count);
-
+void setupSections(Section* sections, int count);
 #endif

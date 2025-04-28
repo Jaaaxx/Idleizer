@@ -1,67 +1,70 @@
 #include "idleizer.h"
 
-// Example game 1
+// Example game 1: Mine Hunter
 int main(void) {
   const int game_width = 1280;
   const int game_height = 800;
-  Currency currencies[] = { { "Gold", 0, (Vector2) {200, 200} }, { "Silver", 0, (Vector2) {200, 500} } };
-  const int currencies_count = sizeof(currencies) / sizeof(currencies[0]);
-  
-  const float rectWidth = 200.0f;
-  const float rectHeight = 100.0f;
+ 
+  // Sections (must be declared first)
+  Section gameArea = { { 0, 0, (float) game_width, (float) game_height}, RED };
+  Section mainArea = { { 0.0f, 0.0f, 50.0f, 100.0f }, YELLOW, &gameArea };
+  Section shopArea = { { 50.0f, 0.0f, 50.0f, 100.0f }, GRAY, &gameArea };
+  Section sections[] = { mainArea, shopArea };
+  const int sections_count = sizeof(sections) / sizeof(sections[0]);
 
+  Currency currencies[] = {
+    { "Gold", 0, {10, 10}, &mainArea },
+    { "Silver", 0, {60, 10}, &mainArea }
+  };
+  Currency* gold = &currencies[0];
+  Currency* silver = &currencies[1];
+
+  const int currencies_count = sizeof(currencies) / sizeof(currencies[0]);
+ 
   int gold_miners = 0;
   char gold_miners_label[50];
   sprintf(gold_miners_label, "Gold Miners: %d", gold_miners);
 
   void goldClickHandler() {
-    Currency* cur = &currencies[0]; // find a way to do this without inputting index manually
-    cur->amount += 5;
+    gold->amount += 1;
   }
   
   void silverClickHandler() {
-    Currency* cur = &currencies[1]; // find a way to do this without inputting index manually
-    cur->amount += 1;
+    silver->amount += 1;
   }
 
   void goldMinerClickHandler() {
-    gold_miners++;
-    sprintf(gold_miners_label, "Gold Miners: %d", gold_miners);
+    if (silver->amount >= 5) {
+      silver->amount -= 5;
+      gold_miners++;
+      sprintf(gold_miners_label, "Gold Miners: %d", gold_miners);
+    }
   }
 
   void goldMinerHandler() {
-    Currency* cur = &currencies[0];
-    cur->amount += gold_miners;
+    gold->amount += gold_miners;
   }
   
-  Rectangle pbrect = { ((float) game_width - rectWidth - 250) / 2,
-                       ((float) game_height - rectHeight) / 2.0f, 
-                       (float) rectWidth, (float) rectHeight };
-  Rectangle pbrect2 = { ((float) game_width - rectWidth - 250) / 2,
-                        ((float) game_height - rectHeight) / 2.0f + rectHeight * 2,
-                        (float) rectWidth, (float) rectHeight };
-  Rectangle pbrect3 = { ((float) game_width - rectWidth - 100),
-                        ((float) 200),
-                        (float) rectWidth, (float) rectHeight };
-  Ticker tickers[] = { { "Gold Miner", 150, 0, { 700, 200 }, goldMinerHandler } };
+  Ticker tickers[] = { { "Mining", 150, 0, { 70, 10 }, goldMinerHandler, &shopArea } };
   const int tickers_count = sizeof(tickers) / sizeof(tickers[0]);
 
   Button buttons[] = {
-      { &pbrect, "Mine", goldClickHandler },
-      { &pbrect2, "Mine silver", silverClickHandler },
-      { &pbrect3, "Buy gold miner", goldMinerClickHandler },
+      { { 10, 40, 30, 20 }, "Mine", goldClickHandler, &mainArea },
+      { { 60, 40, 30, 20 }, "Mine silver", silverClickHandler, &mainArea },
+      { { 5, 10, 30, 10 }, "Buy gold miner\n Costs 5 Silver", goldMinerClickHandler, &shopArea },
   };
   const int btn_count = sizeof(buttons) / sizeof(buttons[0]);
 
   Label labels[] = {
-    { gold_miners_label, { 700, 250 }, 20, BLACK, false }
+    { gold_miners_label, { 40, 10 }, 20, BLACK, false, &shopArea }
   };
   const int labels_count = sizeof(labels) / sizeof(labels[0]);
 
+  setupSections(sections, sections_count);
   setupTickers(tickers, tickers_count);
   setupCurrencies(currencies, currencies_count);
   setupButtons(buttons, btn_count);
   setupLabels(labels, labels_count);
-  runGame(game_width, game_height);
+  runGame(game_width, game_height, "Mine Hunter");
   return 0;
 }

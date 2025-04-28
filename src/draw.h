@@ -5,8 +5,14 @@
 #include "currency.h"
 #include "ticker.h"
 #include "label.h"
+#include "section.h"
+#include "vr_rec.h"
+#include "vr_vec.h"
 
-void drawSectionOutlines(int game_width, int game_height);
+#define TRANSPARENT CLITERAL(Color){ 255, 255, 255, 0 }
+
+void drawSection(Section* section);
+void drawSections(Section* sections, int count);
 void drawButton(const Button* button); 
 void drawButtons(const Button* buttons, const int buttons_count);
 void drawCurrencies(Currency* currencies, int currencies_count); 

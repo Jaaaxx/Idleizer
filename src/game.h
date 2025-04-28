@@ -8,6 +8,10 @@
 #include "draw.h"
 #include "label.h"
 
+extern int GAME_WIDTH;
+extern int GAME_HEIGHT;
+extern Section* SECTIONS;
+extern int SECTIONS_COUNT;
 extern Currency* CURRENCIES;
 extern int CURRENCIES_COUNT;
 extern Button* BUTTONS;
@@ -19,4 +23,5 @@ extern int LABELS_COUNT;
 
 void handleTickers();
 void mouseButtonsHandler(Button* buttons, int buttons_count, int* mouseBtn);
+void setGameSize(int game_width, int game_height);
 #endif

@@ -1,6 +1,12 @@
 #include "game.h"
 #include <stdbool.h>
 
+int GAME_WIDTH = 0;
+int GAME_HEIGHT = 0;
+
+Section* SECTIONS = 0;
+int SECTIONS_COUNT = 0;
+
 Currency* CURRENCIES = 0; 
 int CURRENCIES_COUNT = 0; 
 
@@ -17,7 +23,6 @@ void handleTickers(Ticker* tickers, int tickers_count) {
   bool tickerReached = false;
   for (int i = 0; i < TICKERS_COUNT; i++) {
     tickerReached = false;
-    // Should move this somewhere else (not in draw)
     if (TICKERS[i].tick == TICKERS[i].frequency) {
       TICKERS[i].tick = 0;
       TICKERS[i].handler();
@@ -31,7 +36,7 @@ void handleTickers(Ticker* tickers, int tickers_count) {
 
 void mouseButtonsHandler(Button* buttons, int buttons_count, int* mouseBtn) {
   for (int i = 0; i < buttons_count; i++) {
-    if (CheckCollisionPointRec(GetMousePosition(), *buttons[i].rec)) {
+    if (CheckCollisionPointRec(GetMousePosition(), *getTrueRec(buttons[i].rec, buttons[i].sec))) {
       if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && *mouseBtn != 1) {
         buttons[i].handler();
         *mouseBtn = 1;
@@ -42,3 +47,7 @@ void mouseButtonsHandler(Button* buttons, int buttons_count, int* mouseBtn) {
   }
 }
 
+void setGameSize(int game_width, int game_height) {
+  GAME_WIDTH = game_width;
+  GAME_HEIGHT = game_height;
+}
