@@ -4,9 +4,9 @@
 #include "raylib.h"
 
 typedef struct {
-  Rectangle* rect;
+  Rectangle* rec;
   char* text;
-  void (*func)();
+  void (*handler)();
 } Button;
 
 #endif

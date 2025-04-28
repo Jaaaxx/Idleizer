@@ -3,10 +3,12 @@
 
 #include "button.h"
 #include "raylib.h"
+#include "currency.h"
 
-extern const char* CURRENCY_NAME;
-extern const int CURRENCY_AMOUNT_DEFAULT;
+extern Currency CURRENCIES[];
+extern const int CURRENCIES_COUNT;
 extern const int GAME_WIDTH_INIT;
 extern const int GAME_HEIGHT_INIT;
-extern Button PRIMARY_BUTTON;
+extern Button BUTTONS[];
+extern const int BUTTONS_COUNT;
 #endif
