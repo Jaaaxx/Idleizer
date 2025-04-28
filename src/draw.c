@@ -42,7 +42,7 @@ void drawCurrencies(Currency* currencies, const int currencies_count) {
 
     int arrSize = sizeof(currencies[i].name) + sizeof(char) * 30;
     char* currency_amount_text = malloc(arrSize);
-    sprintf(currency_amount_text, "%s: %llu", currencies[i].name, currencies[i].amount);
+    sprintf(currency_amount_text, "%s: %.0f", currencies[i].name, currencies[i].amount);
     DrawText(currency_amount_text, rec->x, rec->y, 20, RED);
     currency_amount_text = calloc(arrSize, sizeof(char));
   }

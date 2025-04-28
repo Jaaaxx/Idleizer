@@ -29,7 +29,7 @@ void handleTickers(Ticker* tickers, int tickers_count) {
       tickerReached = true;
     }
     
-    drawTicker(TICKERS[i], tickerReached ? RED : BLACK);
+    // drawTicker(TICKERS[i], tickerReached ? RED : BLACK);
     TICKERS[i].tick++;
   }
 }

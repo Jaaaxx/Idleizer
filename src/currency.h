@@ -6,7 +6,7 @@
 
 typedef struct {
   char* name;
-  int amount;
+  double amount;
   VrVec pos;
   Section* sec;
 } Currency;
