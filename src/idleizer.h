@@ -13,7 +13,13 @@
 #include "button.h"
 #include "game.h"
 #include "draw.h"
-#include "handlers.h"
+#include "ticker.h"
 
 void runGame(int game_width, int game_height);
+
+void setupCurrencies(Currency* currencies, int count);
+void setupButtons(Button* buttons, int count);
+void setupTickers(Ticker* tickers, int count);
+void setupLabels(Label* labels, int count);
+
 #endif
