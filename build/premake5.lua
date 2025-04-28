@@ -161,9 +161,15 @@ if (downloadRaylib) then
             ["Source Files/*"] = {"../src/**.c", "src/**.cpp"},
         }
         files {"../src/**.c", "../src/**.cpp", "../src/**.h", "../src/**.hpp", "../include/**.h", "../include/**.hpp"}
-    
-        includedirs { "../src" }
-        includedirs { "../include" }
+
+        includedirs {
+            "../src",
+            "../include",
+            raylib_dir .. "/src",
+            raylib_dir .. "/src/external",
+            raylib_dir .. "/src/external/glfw/include"
+        }
+
 
         links {"raylib"}
 

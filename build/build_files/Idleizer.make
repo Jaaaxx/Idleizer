@@ -184,8 +184,20 @@ endif
 GENERATED :=
 OBJECTS :=
 
+GENERATED += $(OBJDIR)/draw.o
+GENERATED += $(OBJDIR)/game.o
+GENERATED += $(OBJDIR)/idleizer.o
 GENERATED += $(OBJDIR)/main.o
+GENERATED += $(OBJDIR)/section.o
+GENERATED += $(OBJDIR)/vr_rec.o
+GENERATED += $(OBJDIR)/vr_vec.o
+OBJECTS += $(OBJDIR)/draw.o
+OBJECTS += $(OBJDIR)/game.o
+OBJECTS += $(OBJDIR)/idleizer.o
 OBJECTS += $(OBJDIR)/main.o
+OBJECTS += $(OBJDIR)/section.o
+OBJECTS += $(OBJDIR)/vr_rec.o
+OBJECTS += $(OBJDIR)/vr_vec.o
 
 # Rules
 # #############################################
@@ -249,7 +261,25 @@ endif
 # File Rules
 # #############################################
 
+$(OBJDIR)/draw.o: ../../src/draw.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/game.o: ../../src/game.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/idleizer.o: ../../src/idleizer.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/main.o: ../../src/main.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/section.o: ../../src/section.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/vr_rec.o: ../../src/vr_rec.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/vr_vec.o: ../../src/vr_vec.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 
