@@ -1,59 +1,39 @@
-#include "raylib.h"
-#include "resource_dir.h"	// utility header for SearchAndSetResourceDir
+#include "idleizer.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
+// Example game 1
+int main(void) {
+  const int game_width = 1280;
+  const int game_height = 800;
+  Currency currencies[] = { { "Gold", 0, (Vector2) {200, 200} }, { "Silver", 0, (Vector2) {200, 500} } };
+  const int currencies_count = sizeof(currencies) / sizeof(currencies[0]);
+  
+  const float rectWidth = 200.0f;
+  const float rectHeight = 100.0f;
 
-#include "config.h"
-#include "draw.h"
-
-void mouseButtonsHandler(Button* buttons, int buttons_count, int* mouseBtn) {
-  for (int i = 0; i < buttons_count; i++) {
-    if (CheckCollisionPointRec(GetMousePosition(), *buttons[i].rec)) {
-      if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && *mouseBtn != 1) {
-        buttons[i].handler();
-        *mouseBtn = 1;
-      } else if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-        *mouseBtn = -1;
-      }
-    }
+  void goldClickHandler() {
+    Currency* cur = &currencies[0]; // find a way to do this without inputting index manually
+    cur->amount += 5;
   }
-}
+  
+  void silverClickHandler() {
+    Currency* cur = &currencies[1]; // find a way to do this without inputting index manually
+    cur->amount += 5;
+  }
+  
+  Rectangle pbrect = { ((float) game_width - rectWidth - 250) / 2,
+                       ((float) game_height - rectHeight) / 2.0f, 
+                       (float) rectWidth, (float) rectHeight };
+  Rectangle pbrect2 = { ((float) game_width - rectWidth - 250) / 2,
+                        ((float) game_height - rectHeight) / 2.0f + rectHeight * 2,
+                        (float) rectWidth, (float) rectHeight };
+  Button buttons[] = {
+      { &pbrect, "Mine", goldClickHandler },
+      { &pbrect2, "Mine silver", silverClickHandler },
+  };
+  const int btn_count = sizeof(buttons) / sizeof(buttons[0]);
 
-int main () {
-  int game_width = GAME_WIDTH_INIT;
-  int game_height = GAME_HEIGHT_INIT;
- 
-	// Tell the window to use vsync and work on high DPI displays
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-
-	// Create the window and OpenGL context
-	InitWindow(game_width, game_height, "Hello Idleizer");
-	SearchAndSetResourceDir("resources");
-
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
- 
-  char currency_amount_text[100];
-  int mouseBtn = -1;
-  // game loop
-	while (!WindowShouldClose()) {
-    // controls
-    mouseButtonsHandler(BUTTONS, BUTTONS_COUNT, &mouseBtn);
-    // drawing
-		BeginDrawing();
-		ClearBackground(WHITE);
-
-    drawSectionOutlines(game_width, game_height);
-    drawCurrencies(CURRENCIES, CURRENCIES_COUNT);
-    drawButtons(BUTTONS, BUTTONS_COUNT);
-		DrawTexture(wabbit, 400, 200, WHITE);
-		
-		EndDrawing();
-	}
-
-	UnloadTexture(wabbit);
-	CloseWindow();
-	return 0;
+  setupCurrencies(currencies, currencies_count);
+  setupButtons(buttons, btn_count);
+  runGame(game_width, game_height);
+  return 0;
 }
