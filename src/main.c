@@ -3,6 +3,16 @@
 #define game_width 1280
 #define game_height 800
 
+typedef struct {
+  char text[64];
+} TextBuffer;
+
+typedef struct {
+    TextBuffer gold_miners_label;
+    TextBuffer gold_miners_cps_label;
+    TextBuffer buy_gold_miner_button;
+} GameTexts;
+
 typedef struct GameSections {
   Section* gameArea;
   Section* mainArea;
@@ -15,22 +25,20 @@ typedef struct GameState {
   int gold_miners;
   double gold_miners_cps;
   double gold_miner_cost;
-  char gold_miners_label[50];
-  char gold_miners_cps_label[50];
-  char buyGoldMinerButtonText[50];
   GameSections* sections;
+  GameTexts texts;
 } GameState;
 
 static void setGoldMinersLabel(GameState* gs) {
-  sprintf(gs->gold_miners_label, "Gold Miners: %d", gs->gold_miners);
+  sprintf(gs->texts.gold_miners_label.text, "Gold Miners: %d", gs->gold_miners);
 }
 
 static void setGoldMinersCPSLabel(GameState* gs) {
-  sprintf(gs->gold_miners_cps_label, "Per Second: %.1f", gs->gold_miners * gs->gold_miners_cps);
+  sprintf(gs->texts.gold_miners_cps_label.text, "Per Second: %.1f", gs->gold_miners * gs->gold_miners_cps);
 }
 
 static void setBuyGoldMinerButtonText(GameState* gs) {
-  sprintf(gs->buyGoldMinerButtonText, "Buy gold miner\n Costs %.1f Gold", gs->gold_miner_cost);
+  sprintf(gs->texts.buy_gold_miner_button.text, "Buy gold miner\n Costs %.1f Gold", gs->gold_miner_cost);
 }
 
 static void updateGoldLabels(GameState* gs) {
@@ -98,15 +106,15 @@ static void initButtons(GameState* gs) {
   buttons[0] = (Button) { { 10, 40, 30, 20 }, "Mine", goldClickHandler, gs, secs->mainArea };
   buttons[1] = (Button) { { 60, 40, 30, 20 }, "Mine silver", silverClickHandler, gs, secs->mainArea };
   buttons[2] = (Button) { { 5, 10, 30, 10 }, 
-    gs->buyGoldMinerButtonText, goldMinerClickHandler, gs, secs->shopArea };
+    gs->texts.buy_gold_miner_button.text, goldMinerClickHandler, gs, secs->shopArea };
   setupButtons(buttons, 3);
 }
 
 static void initLabels(GameState* gs) { 
   GameSections* secs = gs->sections;
   Label* labels = malloc(sizeof(Label) * 2);
-  labels[0] = (Label) { gs->gold_miners_label, { 40, 10 }, 20, BLACK, false, secs->shopArea };
-  labels[1] = (Label) { gs->gold_miners_cps_label, {40, 15}, 20, BLACK, false, secs->shopArea };
+  labels[0] = (Label) { gs->texts.gold_miners_label.text, { 40, 10 }, 20, BLACK, false, secs->shopArea };
+  labels[1] = (Label) { gs->texts.gold_miners_cps_label.text, {40, 15}, 20, BLACK, false, secs->shopArea };
   setupLabels(labels, 2);
 }
 
