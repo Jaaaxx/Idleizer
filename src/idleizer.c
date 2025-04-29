@@ -59,3 +59,18 @@ void setupSections(Section* sections, int count) {
   SECTIONS = sections;
   SECTIONS_COUNT = count;
 }
+
+void destroyCore(Core* core) {
+  free(core->sections);
+  free(core->currencies);
+  free(core->buttons);
+  free(core->labels);
+  free(core->tickers);
+}
+
+void setTextBuffer(TextBuffer* buffer, const char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  vsprintf(buffer->text, fmt, args);
+  va_end(args);
+}

@@ -4,10 +4,6 @@
 #define game_height 800
 
 typedef struct {
-  char text[64];
-} TextBuffer;
-
-typedef struct {
     TextBuffer gold_miners_label;
     TextBuffer gold_miners_cps_label;
     TextBuffer buy_gold_miner_button;
@@ -20,6 +16,7 @@ typedef struct GameSections {
 } GameSections;
 
 typedef struct GameState {
+  Core core;
   Currency* gold;
   Currency* silver;
   int gold_miners;
@@ -30,15 +27,17 @@ typedef struct GameState {
 } GameState;
 
 static void setGoldMinersLabel(GameState* gs) {
-  sprintf(gs->texts.gold_miners_label.text, "Gold Miners: %d", gs->gold_miners);
+  setTextBuffer(&(gs->texts.gold_miners_label), "Gold Miners: %d", gs->gold_miners);
 }
 
 static void setGoldMinersCPSLabel(GameState* gs) {
-  sprintf(gs->texts.gold_miners_cps_label.text, "Per Second: %.1f", gs->gold_miners * gs->gold_miners_cps);
+  setTextBuffer(&(gs->texts.gold_miners_cps_label), "Per Second: %.1f", 
+                gs->gold_miners * gs->gold_miners_cps);
 }
 
 static void setBuyGoldMinerButtonText(GameState* gs) {
-  sprintf(gs->texts.buy_gold_miner_button.text, "Buy gold miner\n Costs %.1f Gold", gs->gold_miner_cost);
+  setTextBuffer(&(gs->texts.buy_gold_miner_button), 
+          "Buy gold miner\n Costs %.1f Gold", gs->gold_miner_cost);
 }
 
 static void updateGoldLabels(GameState* gs) {
@@ -87,6 +86,7 @@ static void initSections(GameState* gs) {
   gs->sections = gameSects;
 
   setupSections(sects, 3);
+  gs->core.sections = sects;
 }
 static void initCurrencies(GameState* gs) {
   GameSections* secs = gs->sections;
@@ -98,6 +98,7 @@ static void initCurrencies(GameState* gs) {
   gs->gold = &currencies[0];
   gs->silver = &currencies[1];
   setupCurrencies(currencies, 2);
+  gs->core.currencies = currencies;
 }
 
 static void initButtons(GameState* gs) {
@@ -108,6 +109,7 @@ static void initButtons(GameState* gs) {
   buttons[2] = (Button) { { 5, 10, 30, 10 }, 
     gs->texts.buy_gold_miner_button.text, goldMinerClickHandler, gs, secs->shopArea };
   setupButtons(buttons, 3);
+  gs->core.buttons = buttons;
 }
 
 static void initLabels(GameState* gs) { 
@@ -116,6 +118,7 @@ static void initLabels(GameState* gs) {
   labels[0] = (Label) { gs->texts.gold_miners_label.text, { 40, 10 }, 20, BLACK, false, secs->shopArea };
   labels[1] = (Label) { gs->texts.gold_miners_cps_label.text, {40, 15}, 20, BLACK, false, secs->shopArea };
   setupLabels(labels, 2);
+  gs->core.labels = labels;
 }
 
 static void initTickers(GameState* gs) {
@@ -123,6 +126,7 @@ static void initTickers(GameState* gs) {
   Ticker* tickers = malloc(sizeof(Ticker) * 1);
   tickers[0] = (Ticker) { "Mining", 6, 0, { 70, 10 }, goldMinerHandler, gs, secs->shopArea };
   setupTickers(tickers, 1);
+  gs->core.tickers = tickers;
 }
 
 static void destroyGameState(GameState* gs) {
@@ -130,12 +134,14 @@ static void destroyGameState(GameState* gs) {
   free(gs->sections->mainArea); 
   free(gs->sections->shopArea); 
   free(gs->sections);
-}
+  destroyCore(&gs->core);
+} 
 
 // Example game 1: Mine Hunter
 int main(void) {
   GameState gs = {0};
-
+  Core core = {0};
+  gs.core = core;
   gs.gold_miners = 0;
   gs.gold_miners_cps = 0.08;
   gs.gold_miner_cost = 5;
