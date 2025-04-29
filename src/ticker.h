@@ -8,6 +8,7 @@ typedef struct {
   int tick;
   VrRec pos;
   void (*handler)(); 
+  void* ctx;
   Section* sec;
 } Ticker;
 #endif

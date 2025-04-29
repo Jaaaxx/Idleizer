@@ -8,7 +8,8 @@
 typedef struct {
   VrRec rec;
   char* text;
-  void (*handler)();
+  void (*handler)(void*);
+  void* ctx;
   Section* sec;
 } Button;
 

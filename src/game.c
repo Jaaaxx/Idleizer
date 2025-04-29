@@ -25,7 +25,7 @@ void handleTickers(Ticker* tickers, int tickers_count) {
     tickerReached = false;
     if (TICKERS[i].tick == TICKERS[i].frequency) {
       TICKERS[i].tick = 0;
-      TICKERS[i].handler();
+      TICKERS[i].handler(TICKERS[i].ctx);
       tickerReached = true;
     }
     
@@ -38,7 +38,7 @@ void mouseButtonsHandler(Button* buttons, int buttons_count, int* mouseBtn) {
   for (int i = 0; i < buttons_count; i++) {
     if (CheckCollisionPointRec(GetMousePosition(), *getTrueRec(buttons[i].rec, buttons[i].sec))) {
       if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && *mouseBtn != 1) {
-        buttons[i].handler();
+        buttons[i].handler(buttons[i].ctx);
         *mouseBtn = 1;
       } else if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         *mouseBtn = -1;
