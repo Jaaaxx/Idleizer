@@ -16,15 +16,7 @@
 #include "draw.h"
 #include "ticker.h"
 #include "section.h"
-
-typedef struct Core {
-  Section* sections;
-  Currency* currencies;
-  Button* buttons;
-  Label* labels;
-  Ticker* tickers;
-} Core;
-
+#include "core.h"
 
 typedef struct {
   char text[64];
@@ -32,6 +24,7 @@ typedef struct {
 
 void runGame(int game_width, int game_height, char* title);
 
+void initCore(Core* core);
 void setupCurrencies(Currency* currencies, int count);
 void setupButtons(Button* buttons, int count);
 void setupTickers(Ticker* tickers, int count);

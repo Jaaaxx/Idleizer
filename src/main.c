@@ -92,6 +92,10 @@ static void goldMinerHandler(void* ctx) {
   gs->gold->amount += ((double) gs->gold_miners) * gs->gold_miners_cps / 10.0;
 }
 
+// todo move all init functions to engine (see below)
+// Section* createSections(const Rectangle* rects, const Color* colors, Section** parents, int count);
+// void addSection(const Rectangle rect, const Color color, Section* parent)
+// void removeSection(Section* sec);
 static void initSections(GameState* gs) {
   Section* sects = malloc(sizeof(Section) * 5);
 
@@ -177,6 +181,7 @@ int main(void) {
   gs.gold_miners_cps = 0.08;
   gs.gold_miner_cost = 5;
   
+  initCore(&core);
   initSections(&gs);
   initCurrencies(&gs);
   initButtons(&gs);

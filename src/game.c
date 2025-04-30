@@ -4,6 +4,8 @@
 int GAME_WIDTH = 0;
 int GAME_HEIGHT = 0;
 
+Core* GAME_CORE = 0;
+
 Section* SECTIONS = 0;
 int SECTIONS_COUNT = 0;
 

@@ -7,9 +7,11 @@
 #include "ticker.h"
 #include "draw.h"
 #include "label.h"
+#include "core.h"
 
 extern int GAME_WIDTH;
 extern int GAME_HEIGHT;
+extern Core* GAME_CORE;
 extern Section* SECTIONS;
 extern int SECTIONS_COUNT;
 extern Currency* CURRENCIES;

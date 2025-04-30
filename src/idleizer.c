@@ -35,6 +35,10 @@ void runGame(int game_width, int game_height, char* title) {
 	CloseWindow();
 }
 
+void initCore(Core* core) {
+  GAME_CORE = core;
+}
+
 void setupCurrencies(Currency* currencies, int count) {
   CURRENCIES = currencies;
   CURRENCIES_COUNT = count;
