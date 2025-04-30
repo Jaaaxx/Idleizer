@@ -13,6 +13,6 @@ typedef struct {
   void (*handler)(); 
   void* ctx;
   Section* sec;
-  bool active;
+  bool hidden;
 } Ticker;
 #endif

@@ -33,7 +33,7 @@ void handleTickers(Ticker* tickers, int tickers_count) {
       TICKERS[i].displayTick++;
     }
     
-    if (TICKERS[i].active) {
+    if (!TICKERS[i].hidden) {
       drawTicker(TICKERS[i], BLACK);
     }
     TICKERS[i].tick++;

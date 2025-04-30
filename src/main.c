@@ -7,6 +7,7 @@ typedef struct {
     TextBuffer gold_miners_label;
     TextBuffer gold_miners_cps_label;
     TextBuffer buy_gold_miner_button;
+    TextBuffer flavor_text_label;
 } GameTexts;
 
 typedef struct GameSections {
@@ -28,6 +29,15 @@ typedef struct GameState {
   GameTexts texts;
 } GameState;
 
+const char* flavorTexts[] = {
+  "I am flavor text! Haha!",
+  "Here at mine hunter, we love miners!",
+  "Mining is our specialty!",
+  "Who said anything about the price of \nsilver?",
+  "Woop woop! Mining session!"
+};
+const int flavorTextsLen = 5;
+
 static void setGoldMinersLabel(GameState* gs) {
   setTextBuffer(&(gs->texts.gold_miners_label), "Gold Miners: %d", gs->gold_miners);
 }
@@ -40,6 +50,12 @@ static void setGoldMinersCPSLabel(GameState* gs) {
 static void setBuyGoldMinerButtonText(GameState* gs) {
   setTextBuffer(&(gs->texts.buy_gold_miner_button), 
           "Buy gold miner\n Costs %.1f Gold", gs->gold_miner_cost);
+}
+
+static void updateFlavorTextLabel(void* ctx) {
+  GameState* gs = (GameState*) ctx;
+
+  setTextBuffer(&(gs->texts.flavor_text_label), flavorTexts[GetRandomValue(0, flavorTextsLen-1)]);
 }
 
 static void updateGoldLabels(GameState* gs) {
@@ -66,7 +82,7 @@ static void goldMinerClickHandler(void* ctx) {
     gs->gold_miner_cost *= 1.15;
     gs->core.labels[0].hidden = false;
     gs->core.labels[1].hidden = false;
-    gs->core.tickers[0].active = true;
+    gs->core.tickers[0].hidden = false;
     updateGoldLabels(gs);
   }
 }
@@ -112,29 +128,35 @@ static void initCurrencies(GameState* gs) {
 
 static void initButtons(GameState* gs) {
   GameSections* secs = gs->sections;
-  Button* buttons = malloc(sizeof(Button) * 3);
+  Button* buttons = malloc(sizeof(Button) * 7);
   buttons[0] = (Button) { { 10, 40, 30, 20 }, "Mine", goldClickHandler, gs, secs->mainArea };
   buttons[1] = (Button) { { 60, 40, 30, 20 }, "Mine silver", silverClickHandler, gs, secs->mainArea };
-  buttons[2] = (Button) { { 5, 10, 80, 10 }, 
+  buttons[2] = (Button) { { 5, 5, 80, 10 }, 
     gs->texts.buy_gold_miner_button.text, goldMinerClickHandler, gs, secs->shopArea };
-  setupButtons(buttons, 3);
+  buttons[3] = (Button) { { 0, 0, 14, 50 }, "Options", updateFlavorTextLabel, gs, secs->optionsArea };
+  buttons[4] = (Button) { { 0, 50, 14, 50 }, "Stats", updateFlavorTextLabel, gs, secs->optionsArea };
+  buttons[5] = (Button) { { 86, 0, 14, 50 }, "Info", updateFlavorTextLabel, gs, secs->optionsArea };
+  buttons[6] = (Button) { { 86, 50, 14, 50 }, "Legacy", updateFlavorTextLabel, gs, secs->optionsArea };
+  setupButtons(buttons, 7);
   gs->core.buttons = buttons;
 }
 
 static void initLabels(GameState* gs) { 
   GameSections* secs = gs->sections;
-  Label* labels = malloc(sizeof(Label) * 2);
+  Label* labels = malloc(sizeof(Label) * 3);
   labels[0] = (Label) { gs->texts.gold_miners_label.text, { 10, 15 }, 20, BLACK, true, secs->displayArea};
   labels[1] = (Label) { gs->texts.gold_miners_cps_label.text, {10, 20}, 20, BLACK, true, secs->displayArea};
-  setupLabels(labels, 2);
+  labels[2] = (Label) {gs->texts.flavor_text_label.text, { 15.0f, 5.0f }, 20, BLACK, false, secs->optionsArea};
+  setupLabels(labels, 3);
   gs->core.labels = labels;
 }
 
 static void initTickers(GameState* gs) {
   GameSections* secs = gs->sections;
-  Ticker* tickers = malloc(sizeof(Ticker) * 1);
-  tickers[0] = (Ticker) { "Mining", 6, 0, 0, {50, 17.5f}, goldMinerHandler, gs, secs->displayArea, false};
-  setupTickers(tickers, 1);
+  Ticker* tickers = malloc(sizeof(Ticker) * 2);
+  tickers[0] = (Ticker) { "Mining", 6, 0, 0, {50, 17.5f}, goldMinerHandler, gs, secs->displayArea, true};
+  tickers[1] = (Ticker) { "Updating Flavor Text", 1200, 0, 0, {0, 0}, updateFlavorTextLabel, gs, secs->gameArea, true};
+  setupTickers(tickers, 2);
   gs->core.tickers = tickers;
 }
 
@@ -162,6 +184,7 @@ int main(void) {
   initTickers(&gs);
 
   updateGoldLabels(&gs);
+  updateFlavorTextLabel(&gs);
 
   runGame(game_width, game_height, "Mine Hunter");
   destroyGameState(&gs);
