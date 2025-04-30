@@ -82,17 +82,30 @@ void createCurrencies(Core* core, const char** names, const VrVec* positions, Se
 }
 
 void createButtons(Core* core, const char** texts, const VrRec* recs,
-                   void (**handlers)(void *), void* gameState, Section** secs, int count) {
+                   void (**handlers)(void *), void** ctxs, Section** secs, int count) {
   Button* buttons = malloc(sizeof(Button) * count);
   for (int i = 0; i < count; i++) {
     buttons[i].text = texts[i];
     buttons[i].rec = recs[i];
     buttons[i].handler = handlers[i];
-    buttons[i].ctx = gameState;
+    buttons[i].ctx = ctxs[i];
     buttons[i].sec = secs[i];
   }
   core->buttons = buttons;
   core->buttons_size = count;
+}
+
+int addButton(Core* core, char* text, VrRec rec, void (*handler)(void*), void* ctx, Section* sec) {
+  core->buttons = realloc(core->buttons, sizeof(Button) * (core->buttons_size + 1));
+
+  Button* b = &core->buttons[core->buttons_size];
+  b->text = text;
+  b->rec = rec;
+  b->handler = handler;
+  b->ctx = ctx;
+  b->sec = sec;
+
+  return core->buttons_size++;
 }
 
 void createLabels(Core* core, char** texts, VrVec* vecs, Color* colors,
@@ -110,8 +123,22 @@ void createLabels(Core* core, char** texts, VrVec* vecs, Color* colors,
   core->labels_size = count;
 }
 
+int addLabel(Core* core, char* text, VrVec pos, Color color, bool hidden, Section* parent) {
+  core->labels = realloc(core->labels, sizeof(Label) * (core->labels_size + 1));
+
+  Label* l = &core->labels[core->labels_size];
+  l->text = text;
+  l->pos = pos;
+  l->fontSize = 20;
+  l->color = color;
+  l->hidden = hidden;
+  l->sec = parent;
+
+  return core->labels_size++;
+}
+
 void createTickers(Core* core, char** texts, VrVec* secs, int* frequencies, void (**handlers)(void *), 
-                   void* gameState, Section** parents, bool* hiddens, int count) {
+                   void** ctxs, Section** parents, bool* hiddens, int count) {
   Ticker* tickers = malloc(sizeof(Ticker) * count);
   for (int i = 0; i < count; i++) {
     tickers[i].name = texts[i];
@@ -120,10 +147,29 @@ void createTickers(Core* core, char** texts, VrVec* secs, int* frequencies, void
     tickers[i].tick = 0;
     tickers[i].displayTick = 0;
     tickers[i].handler = handlers[i];
-    tickers[i].ctx = gameState;
+    tickers[i].ctx = ctxs[i];
     tickers[i].sec = parents[i];
     tickers[i].hidden = hiddens[i];
   }
   core->tickers = tickers;
   core->tickers_size = count;
+}
+
+int addTicker(Core* core, char* name, VrVec pos, int frequency, 
+                void (*handler)(void*), void* ctx, bool hidden, Section* sec) {
+  // Expand existing array
+  core->tickers = realloc(core->tickers, sizeof(Ticker) * (core->tickers_size + 1));
+  
+  Ticker* t = &core->tickers[core->tickers_size];
+  t->name = name;
+  t->pos = pos;
+  t->frequency = frequency;
+  t->tick = 0;
+  t->displayTick = 0;
+  t->handler = handler;
+  t->ctx = ctx;
+  t->sec = sec;
+  t->hidden = hidden;
+
+  return core->tickers_size++;
 }

@@ -3,11 +3,20 @@
 #define game_width 1280
 #define game_height 800
 
+typedef struct BuildingLabels {
+  int amountLabel;
+  int cpsLabel;
+} BuildingLabels;
+
+typedef struct BuildingTickers {
+  int mTicker;
+} BuildingTickers;
+
 typedef struct BuildingTexts {
   TextBuffer amount;
   TextBuffer cps;
   TextBuffer button;
-} CurrencyTexts;
+} BuildingTexts;
 
 typedef struct BuildingVals {
   int amount;
@@ -16,7 +25,6 @@ typedef struct BuildingVals {
 } BuildingVals;
 
 typedef struct {
-  CurrencyTexts goldMiners;
   TextBuffer flavorText;
 } GameTexts;
 
@@ -38,10 +46,19 @@ typedef struct GameState {
   GameCurrencies* currencies;
   GameSections* sections;
   GameTexts texts;
-  
-  // Buildings
-  BuildingVals goldMiners;
 } GameState;
+
+typedef struct BuildingCtx {
+  GameState* gs;
+  char* name;
+  BuildingVals* bv;
+  Currency* bCurr;
+  Currency* gCurr;
+  BuildingLabels* labels;
+  BuildingTickers* tickers;
+  BuildingTexts* texts;
+} BuildingCtx;
+
 
 const char* flavorTexts[] = {
   "I am flavor text! Haha!",
@@ -52,30 +69,10 @@ const char* flavorTexts[] = {
 };
 const int flavorTextsLen = 5;
 
-static void setGoldMinersLabel(GameState* gs) {
-  setTextBuffer(&(gs->texts.goldMiners.amount), "Gold Miners: %d", gs->goldMiners.amount);
-}
-
-static void setGoldMinersCPSLabel(GameState* gs) {
-  setTextBuffer(&(gs->texts.goldMiners.cps), "Per Second: %.1f", 
-                gs->goldMiners.amount * gs->goldMiners.cps);
-}
-
-static void setBuyGoldMinerButtonText(GameState* gs) {
-  setTextBuffer(&(gs->texts.goldMiners.button), 
-          "Buy gold miner\n Costs %.1f Gold", gs->goldMiners.cost);
-}
-
 static void updateFlavorTextLabel(void* ctx) {
   GameState* gs = (GameState*) ctx;
 
   setTextBuffer(&(gs->texts.flavorText), flavorTexts[GetRandomValue(0, flavorTextsLen-1)]);
-}
-
-static void updateGoldLabels(GameState* gs) {
-  setGoldMinersLabel(gs);
-  setGoldMinersCPSLabel(gs);
-  setBuyGoldMinerButtonText(gs);
 }
 
 static void goldClickHandler(void* ctx) {
@@ -87,25 +84,6 @@ static void silverClickHandler(void* ctx) {
   GameState* gs = (GameState*) ctx;
   gs->currencies->silver->amount += 1;
 }
-
-static void goldMinerClickHandler(void* ctx) {
-  GameState* gs = (GameState*) ctx;
-  if (gs->currencies->gold->amount >= gs->goldMiners.cost) {
-    gs->currencies->gold->amount -= gs->goldMiners.cost;
-    gs->goldMiners.amount++;
-    gs->goldMiners.cost *= 1.15;
-    gs->core->labels[0].hidden = false;
-    gs->core->labels[1].hidden = false;
-    gs->core->tickers[0].hidden = false;
-    updateGoldLabels(gs);
-  }
-}
-
-static void goldMinerHandler(void* ctx) {
-  GameState* gs = (GameState*) ctx;
-  gs->currencies->gold->amount += ((double) gs->goldMiners.amount) * gs->goldMiners.cps / 10.0;
-}
-
 
 static void initSections(GameState* gs) {
   const int count = 5;
@@ -179,12 +157,11 @@ static void initCurrencies(GameState* gs) {
 static void initButtons(GameState* gs) {
   GameSections* secs = gs->sections;
 
-  const int count = 7;
+  const int count = 6;
   
   const char* texts[] = { 
     "Mine Gold", 
     "Mine Silver", 
-    gs->texts.goldMiners.button.text,
     "Options", 
     "Stats", 
     "Info", 
@@ -194,7 +171,6 @@ static void initButtons(GameState* gs) {
   VrRec positions[] = { 
     {10, 40, 30, 20}, 
     {60, 40, 30, 20}, 
-    {5, 5, 80, 10}, 
     {0, 0, 14, 50},
     {0, 50, 14, 50}, 
     {86, 0, 14, 50}, 
@@ -204,58 +180,55 @@ static void initButtons(GameState* gs) {
   void (*handlers[])(void*) = { 
     goldClickHandler, 
     silverClickHandler, 
-    goldMinerClickHandler,
     updateFlavorTextLabel, 
     updateFlavorTextLabel,
     updateFlavorTextLabel, 
     updateFlavorTextLabel
   };
+
+  void* ctxs[] = {
+    gs,
+    gs,
+    gs,
+    gs,
+    gs,
+    gs
+  };
   
   Section* parents[] = { 
     secs->mainArea, 
     secs->mainArea, 
-    secs->shopArea, 
     secs->optionsArea,
     secs->optionsArea, 
     secs->optionsArea, 
     secs->optionsArea
   };
 
-  createButtons(gs->core, texts, positions, handlers, gs, parents, count);
+  createButtons(gs->core, texts, positions, handlers, ctxs, parents, count);
 }
 
 
 static void initLabels(GameState* gs) { 
   GameSections* secs = gs->sections;
-  int count = 3;
+  int count = 1;
 
   char* texts[] = {
-    gs->texts.goldMiners.amount.text,
-    gs->texts.goldMiners.cps.text,
     gs->texts.flavorText.text
   };
 
   VrVec positions[] = {
-    {10, 15},
-    {10, 20},
     {15, 5}
   };
 
   Color colors[] = {
-    BLACK,
-    BLACK,
     BLACK
   };
 
   bool hiddens[] = {
-    true,
-    true,
     false
   };
 
   Section* parents[] = {
-    secs->displayArea,
-    secs->displayArea,
     secs->optionsArea
   };
 
@@ -265,39 +238,37 @@ static void initLabels(GameState* gs) {
 
 static void initTickers(GameState* gs) {
   GameSections* secs = gs->sections;
-  int count = 2;
+  int count = 1;
 
   char* texts[] = {
-    "Mining",
     "Updating Flavor Text"
   };
 
   int frequencies[] = {
-    6,
     1200
   };
 
   VrVec positions[] = {
-    {60, 17.5f},
     {0, 0}
   };
 
   void (*handlers[])(void*) = {
-    goldMinerHandler,
     updateFlavorTextLabel
   };
 
+  void* ctxs[] = {
+    gs
+  };
+
   Section* parents[] = {
-    secs->displayArea,
     secs->gameArea
   };
   
   bool hiddens[] = {
-    true,
     true
   };
 
-  createTickers(gs->core, texts, positions, frequencies, handlers, gs, parents, hiddens, count);
+  createTickers(gs->core, texts, positions, frequencies, handlers, ctxs, parents, hiddens, count);
 }
 
 static void destroyGameState(GameState* gs) {
@@ -308,14 +279,100 @@ static void destroyGameState(GameState* gs) {
   destroyCore(gs->core);
 }
 
+static void defBuildTicker(void* context) {
+  BuildingCtx* ctx = (BuildingCtx*) context;
+  ctx->gCurr->amount += ((double) ctx->bv->amount) * ctx->bv->cps / 10.0;
+}
+
+static void defBuildingUpdateLabels(BuildingCtx* ctx) {
+  setTextBuffer(&(ctx->texts->amount), "%s: %d", ctx->name, ctx->bv->amount);
+  setTextBuffer(&(ctx->texts->cps), "Per Second: %.1f %s", ctx->bv->amount*ctx->bv->cps, ctx->gCurr->name);
+  setTextBuffer(&(ctx->texts->button), "Buy %s\n Costs %.1f %s", ctx->name,ctx->bv->cost,ctx->bCurr->name);
+}
+
+static void defBuildButton(void* context) {
+  BuildingCtx* ctx = (BuildingCtx*) context;
+  if (ctx->bCurr->amount >= ctx->bv->cost) {
+    Core* core = ctx->gs->core;
+    ctx->bCurr->amount -= ctx->bv->cost;
+    ctx->bv->amount++;
+    ctx->bv->cost *= 1.15;
+    core->labels[ctx->labels->amountLabel].hidden = false;
+    core->labels[ctx->labels->cpsLabel].hidden = false;
+    core->tickers[ctx->tickers->mTicker].hidden = false;
+    defBuildingUpdateLabels(ctx);
+  }
+}
+
+static VrVec calcBuildingOffsetPos(int buildings_size, int startX, int startY, int yOffset) {
+  VrVec ret = { startX, buildings_size * startY + yOffset };
+  return ret; 
+}
+
+static VrVec calcNextTickerPos(GameState* gs) {
+  return calcBuildingOffsetPos(gs->core->buildings_size, 60, 12, 12.5);
+}
+
+static VrVec calcNextLabelPosAmount(GameState* gs) {
+   return calcBuildingOffsetPos(gs->core->buildings_size, 10, 12, 12.5);
+}
+
+static VrVec calcNextLabelPosCPS(GameState* gs) {
+  return calcBuildingOffsetPos(gs->core->buildings_size, 10, 12, 17.5);
+}
+
+static VrRec calcNextButtonPos(GameState* gs) {
+  VrRec ret = { 5, 12 * gs->core->buildings_size + 5, 80, 10 };
+  return ret;
+}
+
+
+static void setupBuilding(GameState* gs, char* name, double cps, double cost, 
+                          Currency* bCurr, Currency* gCurr) {
+  BuildingVals* bv = malloc(sizeof(BuildingVals));
+  bv->amount = 0;
+  bv->cps = cps;
+  bv->cost = cost;
+
+  BuildingLabels* bl = malloc(sizeof(BuildingLabels));
+  BuildingTickers* btickers = malloc(sizeof(BuildingTickers));
+
+  BuildingCtx* ctx = malloc(sizeof(BuildingCtx)); 
+  ctx->gs = gs;
+  ctx->name = name;
+  ctx->bv = bv;
+  ctx->bCurr = bCurr;
+  ctx->gCurr = gCurr;
+  ctx->labels = bl;
+  ctx->tickers = btickers;
+
+  // Default Building Tickers
+  ctx->tickers->mTicker = addTicker(gs->core, name, calcNextTickerPos(gs),
+                                    6, defBuildTicker, ctx, true, gs->sections->displayArea);
+
+  // Default Building Labels
+  ctx->texts = malloc(sizeof(BuildingTexts));
+
+  ctx->labels->amountLabel = addLabel(gs->core, ctx->texts->amount.text, calcNextLabelPosAmount(gs), 
+                                      BLACK, true, gs->sections->displayArea);
+  ctx->labels->cpsLabel    = addLabel(gs->core, ctx->texts->cps.text, calcNextLabelPosCPS(gs), 
+                                      BLACK, true, gs->sections->displayArea);
+
+  // Default Building Buttons 
+  addButton(gs->core, ctx->texts->button.text, calcNextButtonPos(gs), 
+            defBuildButton, ctx, gs->sections->shopArea);
+
+  defBuildingUpdateLabels(ctx);
+  
+  gs->core->buildings_size++;
+}
+
+
 // Example game 1: Mine Hunter
 int main(void) {
   GameState gs = {0};
   Core core = {0};
   gs.core = &core;
-  gs.goldMiners.amount = 0;
-  gs.goldMiners.cps = 0.08;
-  gs.goldMiners.cost = 5;
   
   initSections(&gs);
   initCurrencies(&gs);
@@ -323,10 +380,19 @@ int main(void) {
   initLabels(&gs);
   initTickers(&gs);
 
-  updateGoldLabels(&gs);
+  setupBuilding(&gs, "Gold Miner", 0.08, 5, gs.currencies->silver, gs.currencies->gold);
+  setupBuilding(&gs, "Silver Miner", 0.08, 5, gs.currencies->gold, gs.currencies->silver);
+  setupBuilding(&gs, "Silver Farm", 1.2, 50, gs.currencies->gold, gs.currencies->silver);
   updateFlavorTextLabel(&gs);
 
   runGame(&core, game_width, game_height, "Mine Hunter");
   destroyGameState(&gs);
   return 0;
 }
+
+
+// todo addSection/addCurrency
+// Store sections, currencies, buttons in ctx
+// add calculated CPS total under each currency total
+// new buildings should create their own sections
+// finally, move all of these new changes to engine and organize engine code

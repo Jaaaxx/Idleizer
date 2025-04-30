@@ -31,9 +31,18 @@ void createSections(Core* core, const VrRec* rects, const Color* colors,
 void createCurrencies(Core* core, const char** names, const VrVec* positions, 
                       Section** parents, int count);
 void createButtons(Core* core, const char** texts, const VrRec* recs,
-                   void (**handlers)(void *), void* gameState, Section** secs, int count);
+                   void (**handlers)(void *), void** ctxs, Section** secs, int count);
 void createLabels(Core* core, char** texts, VrVec* vecs, Color* colors,
                   bool* hiddens, Section** parents, int count);
 void createTickers(Core* core, char** texts, VrVec* secs, int* frequencies, void (**handlers)(void *), 
-                   void* gameState, Section** parents, bool* hiddens, int count);
+                   void** ctxs, Section** parents, bool* hiddens, int count);
+
+int addTicker(Core* core, char* name, VrVec pos, int frequency,
+                  void (*handler)(void*), void* ctx, bool hidden, Section* sec);
+
+int addLabel(Core* core, char* text, VrVec pos, Color color,
+                bool hidden, Section* parent);
+
+int addButton(Core* core, char* text, VrRec rec,
+                  void (*handler)(void*), void* ctx, Section* sec);
 #endif

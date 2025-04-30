@@ -12,6 +12,8 @@ typedef struct Core {
   int labels_size;
   Ticker* tickers;
   int tickers_size;
+
+  int buildings_size;
 } Core;
 
 #endif
