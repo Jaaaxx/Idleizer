@@ -6,7 +6,7 @@
 typedef struct Section {
   VrRec rec;
   Color bg;
-  Section* parent;
+  Section* sec;
 } Section;
 
 float getSecWidth(Section* sec);

@@ -6,8 +6,8 @@
 #include "section.h"
 
 typedef struct {
-  VrRec rec;
   char* text;
+  VrRec rec;
   void (*handler)(void*);
   void* ctx;
   Section* sec;

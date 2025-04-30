@@ -3,11 +3,21 @@
 #define game_width 1280
 #define game_height 800
 
+typedef struct BuildingTexts {
+  TextBuffer amount;
+  TextBuffer cps;
+  TextBuffer button;
+} CurrencyTexts;
+
+typedef struct BuildingVals {
+  int amount;
+  double cps;
+  double cost;
+} BuildingVals;
+
 typedef struct {
-    TextBuffer gold_miners_label;
-    TextBuffer gold_miners_cps_label;
-    TextBuffer buy_gold_miner_button;
-    TextBuffer flavor_text_label;
+  CurrencyTexts goldMiners;
+  TextBuffer flavorText;
 } GameTexts;
 
 typedef struct GameSections {
@@ -18,15 +28,19 @@ typedef struct GameSections {
   Section* optionsArea;
 } GameSections;
 
-typedef struct GameState {
-  Core core;
+typedef struct GameCurrencies {
   Currency* gold;
   Currency* silver;
-  int gold_miners;
-  double gold_miners_cps;
-  double gold_miner_cost;
+} GameCurrencies;
+
+typedef struct GameState {
+  Core* core;
+  GameCurrencies* currencies;
   GameSections* sections;
   GameTexts texts;
+  
+  // Buildings
+  BuildingVals goldMiners;
 } GameState;
 
 const char* flavorTexts[] = {
@@ -39,23 +53,23 @@ const char* flavorTexts[] = {
 const int flavorTextsLen = 5;
 
 static void setGoldMinersLabel(GameState* gs) {
-  setTextBuffer(&(gs->texts.gold_miners_label), "Gold Miners: %d", gs->gold_miners);
+  setTextBuffer(&(gs->texts.goldMiners.amount), "Gold Miners: %d", gs->goldMiners.amount);
 }
 
 static void setGoldMinersCPSLabel(GameState* gs) {
-  setTextBuffer(&(gs->texts.gold_miners_cps_label), "Per Second: %.1f", 
-                gs->gold_miners * gs->gold_miners_cps);
+  setTextBuffer(&(gs->texts.goldMiners.cps), "Per Second: %.1f", 
+                gs->goldMiners.amount * gs->goldMiners.cps);
 }
 
 static void setBuyGoldMinerButtonText(GameState* gs) {
-  setTextBuffer(&(gs->texts.buy_gold_miner_button), 
-          "Buy gold miner\n Costs %.1f Gold", gs->gold_miner_cost);
+  setTextBuffer(&(gs->texts.goldMiners.button), 
+          "Buy gold miner\n Costs %.1f Gold", gs->goldMiners.cost);
 }
 
 static void updateFlavorTextLabel(void* ctx) {
   GameState* gs = (GameState*) ctx;
 
-  setTextBuffer(&(gs->texts.flavor_text_label), flavorTexts[GetRandomValue(0, flavorTextsLen-1)]);
+  setTextBuffer(&(gs->texts.flavorText), flavorTexts[GetRandomValue(0, flavorTextsLen-1)]);
 }
 
 static void updateGoldLabels(GameState* gs) {
@@ -66,102 +80,224 @@ static void updateGoldLabels(GameState* gs) {
 
 static void goldClickHandler(void* ctx) {
   GameState* gs = (GameState*) ctx;
-  gs->gold->amount += 1;
+  gs->currencies->gold->amount += 1;
 }
 
 static void silverClickHandler(void* ctx) {
   GameState* gs = (GameState*) ctx;
-  gs->silver->amount += 1;
+  gs->currencies->silver->amount += 1;
 }
 
 static void goldMinerClickHandler(void* ctx) {
   GameState* gs = (GameState*) ctx;
-  if (gs->gold->amount >= gs->gold_miner_cost) {
-    gs->gold->amount -= gs->gold_miner_cost;
-    gs->gold_miners++;
-    gs->gold_miner_cost *= 1.15;
-    gs->core.labels[0].hidden = false;
-    gs->core.labels[1].hidden = false;
-    gs->core.tickers[0].hidden = false;
+  if (gs->currencies->gold->amount >= gs->goldMiners.cost) {
+    gs->currencies->gold->amount -= gs->goldMiners.cost;
+    gs->goldMiners.amount++;
+    gs->goldMiners.cost *= 1.15;
+    gs->core->labels[0].hidden = false;
+    gs->core->labels[1].hidden = false;
+    gs->core->tickers[0].hidden = false;
     updateGoldLabels(gs);
   }
 }
 
 static void goldMinerHandler(void* ctx) {
   GameState* gs = (GameState*) ctx;
-  gs->gold->amount += ((double) gs->gold_miners) * gs->gold_miners_cps / 10.0;
+  gs->currencies->gold->amount += ((double) gs->goldMiners.amount) * gs->goldMiners.cps / 10.0;
 }
 
-// todo move all init functions to engine (see below)
-// Section* createSections(const Rectangle* rects, const Color* colors, Section** parents, int count);
-// void addSection(const Rectangle rect, const Color color, Section* parent)
-// void removeSection(Section* sec);
-static void initSections(GameState* gs) {
-  Section* sects = malloc(sizeof(Section) * 5);
 
-  sects[0] = (Section){ { 0, 0, (float)game_width, (float)game_height }, TRANSPARENT };
-  sects[1] = (Section){ { 0.0f, 0.0f, 30.0f, 100.0f }, YELLOW, &sects[0] };
-  sects[2] = (Section){ { 30, 0, 45, 100 }, BLUE, &sects[0] };
-  sects[3] = (Section){ {0, 0, 100, 10}, PURPLE, &sects[2] };
-  sects[4] = (Section){ { 75.0f, 0.0f, 25.0f, 100.0f }, GRAY, &sects[0] };
+static void initSections(GameState* gs) {
+  const int count = 5;
+
+  VrRec rects[] = {
+    { 0, 0, game_width, game_height },   // gameArea
+    { 0.0f, 0.0f, 30.0f, 100.0f }, // mainArea
+    { 30.0f, 0.0f, 45.0f, 100.0f }, // displayArea
+    { 0.0f, 0.0f, 100.0f, 10.0f }, // optionsArea
+    { 75.0f, 0.0f, 25.0f, 100.0f }  // shopArea
+  };
+
+  Color colors[] = {
+    TRANSPARENT, // gameArea
+    YELLOW,      // mainArea
+    BLUE,        // displayArea
+    PURPLE,      // optionsArea
+    GRAY         // shopArea
+  };
+
+  int parent_indices[] = {
+    -1, // gameArea has no parent
+     0, // mainArea → gameArea
+     0, // displayArea → gameArea
+     2, // optionsArea → displayArea
+     0  // shopArea → gameArea
+  };
+
+  createSections(gs->core, rects, colors, parent_indices, count);
 
   GameSections* gameSects = malloc(sizeof(GameSections));
-  gameSects->gameArea = &sects[0];
-  gameSects->mainArea = &sects[1];
-  gameSects->displayArea = &sects[2];
-  gameSects->optionsArea = &sects[3];
-  gameSects->shopArea = &sects[4];
+  gameSects->gameArea     = &gs->core->sections[0];
+  gameSects->mainArea     = &gs->core->sections[1];
+  gameSects->displayArea  = &gs->core->sections[2];
+  gameSects->optionsArea  = &gs->core->sections[3];
+  gameSects->shopArea     = &gs->core->sections[4];
 
   gs->sections = gameSects;
-
-  setupSections(sects, 5);
-  gs->core.sections = sects;
 }
+
 static void initCurrencies(GameState* gs) {
   GameSections* secs = gs->sections;
-  Currency* currencies = malloc(sizeof(Currency) * 2);
 
-  currencies[0] = (Currency) { "Gold", (double) 0.0, {10, 10}, secs->mainArea };
-  currencies[1] = (Currency) { "Silver", (double) 0.0, {60, 10}, secs->mainArea };
+  int count = 2;
 
-  gs->gold = &currencies[0];
-  gs->silver = &currencies[1];
-  setupCurrencies(currencies, 2);
-  gs->core.currencies = currencies;
+  const char* names[] = { 
+    "Gold",
+    "Silver" 
+  };
+
+  VrVec positions[] = { 
+    {10, 10},
+    {60, 10} 
+  };
+
+  Section* parents[] = { 
+    secs->mainArea, 
+    secs->mainArea 
+  };
+
+  createCurrencies(gs->core, names, positions, parents, count);
+  
+  GameCurrencies* gameCurrs = malloc(sizeof(GameCurrencies));
+  gameCurrs->gold   = &gs->core->currencies[0];
+  gameCurrs->silver = &gs->core->currencies[1];
+
+  gs->currencies = gameCurrs; 
 }
+
 
 static void initButtons(GameState* gs) {
   GameSections* secs = gs->sections;
-  Button* buttons = malloc(sizeof(Button) * 7);
-  buttons[0] = (Button) { { 10, 40, 30, 20 }, "Mine", goldClickHandler, gs, secs->mainArea };
-  buttons[1] = (Button) { { 60, 40, 30, 20 }, "Mine silver", silverClickHandler, gs, secs->mainArea };
-  buttons[2] = (Button) { { 5, 5, 80, 10 }, 
-    gs->texts.buy_gold_miner_button.text, goldMinerClickHandler, gs, secs->shopArea };
-  buttons[3] = (Button) { { 0, 0, 14, 50 }, "Options", updateFlavorTextLabel, gs, secs->optionsArea };
-  buttons[4] = (Button) { { 0, 50, 14, 50 }, "Stats", updateFlavorTextLabel, gs, secs->optionsArea };
-  buttons[5] = (Button) { { 86, 0, 14, 50 }, "Info", updateFlavorTextLabel, gs, secs->optionsArea };
-  buttons[6] = (Button) { { 86, 50, 14, 50 }, "Legacy", updateFlavorTextLabel, gs, secs->optionsArea };
-  setupButtons(buttons, 7);
-  gs->core.buttons = buttons;
+
+  const int count = 7;
+  
+  const char* texts[] = { 
+    "Mine Gold", 
+    "Mine Silver", 
+    gs->texts.goldMiners.button.text,
+    "Options", 
+    "Stats", 
+    "Info", 
+    "Legacy"
+  };
+
+  VrRec positions[] = { 
+    {10, 40, 30, 20}, 
+    {60, 40, 30, 20}, 
+    {5, 5, 80, 10}, 
+    {0, 0, 14, 50},
+    {0, 50, 14, 50}, 
+    {86, 0, 14, 50}, 
+    {86, 50, 14, 50} 
+  };
+
+  void (*handlers[])(void*) = { 
+    goldClickHandler, 
+    silverClickHandler, 
+    goldMinerClickHandler,
+    updateFlavorTextLabel, 
+    updateFlavorTextLabel,
+    updateFlavorTextLabel, 
+    updateFlavorTextLabel
+  };
+  
+  Section* parents[] = { 
+    secs->mainArea, 
+    secs->mainArea, 
+    secs->shopArea, 
+    secs->optionsArea,
+    secs->optionsArea, 
+    secs->optionsArea, 
+    secs->optionsArea
+  };
+
+  createButtons(gs->core, texts, positions, handlers, gs, parents, count);
 }
+
 
 static void initLabels(GameState* gs) { 
   GameSections* secs = gs->sections;
-  Label* labels = malloc(sizeof(Label) * 3);
-  labels[0] = (Label) { gs->texts.gold_miners_label.text, { 10, 15 }, 20, BLACK, true, secs->displayArea};
-  labels[1] = (Label) { gs->texts.gold_miners_cps_label.text, {10, 20}, 20, BLACK, true, secs->displayArea};
-  labels[2] = (Label) {gs->texts.flavor_text_label.text, { 15.0f, 5.0f }, 20, BLACK, false, secs->optionsArea};
-  setupLabels(labels, 3);
-  gs->core.labels = labels;
+  int count = 3;
+
+  char* texts[] = {
+    gs->texts.goldMiners.amount.text,
+    gs->texts.goldMiners.cps.text,
+    gs->texts.flavorText.text
+  };
+
+  VrVec positions[] = {
+    {10, 15},
+    {10, 20},
+    {15, 5}
+  };
+
+  Color colors[] = {
+    BLACK,
+    BLACK,
+    BLACK
+  };
+
+  bool hiddens[] = {
+    true,
+    true,
+    false
+  };
+
+  Section* parents[] = {
+    secs->displayArea,
+    secs->displayArea,
+    secs->optionsArea
+  };
+
+  createLabels(gs->core, texts, positions, colors, hiddens, parents, count);
 }
+
 
 static void initTickers(GameState* gs) {
   GameSections* secs = gs->sections;
-  Ticker* tickers = malloc(sizeof(Ticker) * 2);
-  tickers[0] = (Ticker) { "Mining", 6, 0, 0, {50, 17.5f}, goldMinerHandler, gs, secs->displayArea, true};
-  tickers[1] = (Ticker) { "Updating Flavor Text", 1200, 0, 0, {0, 0}, updateFlavorTextLabel, gs, secs->gameArea, true};
-  setupTickers(tickers, 2);
-  gs->core.tickers = tickers;
+  int count = 2;
+
+  char* texts[] = {
+    "Mining",
+    "Updating Flavor Text"
+  };
+
+  int frequencies[] = {
+    6,
+    1200
+  };
+
+  VrVec positions[] = {
+    {60, 17.5f},
+    {0, 0}
+  };
+
+  void (*handlers[])(void*) = {
+    goldMinerHandler,
+    updateFlavorTextLabel
+  };
+
+  Section* parents[] = {
+    secs->displayArea,
+    secs->gameArea
+  };
+  
+  bool hiddens[] = {
+    true,
+    true
+  };
+
+  createTickers(gs->core, texts, positions, frequencies, handlers, gs, parents, hiddens, count);
 }
 
 static void destroyGameState(GameState* gs) {
@@ -169,19 +305,18 @@ static void destroyGameState(GameState* gs) {
   free(gs->sections->mainArea); 
   free(gs->sections->shopArea); 
   free(gs->sections);
-  destroyCore(&gs->core);
-} 
+  destroyCore(gs->core);
+}
 
 // Example game 1: Mine Hunter
 int main(void) {
   GameState gs = {0};
   Core core = {0};
-  gs.core = core;
-  gs.gold_miners = 0;
-  gs.gold_miners_cps = 0.08;
-  gs.gold_miner_cost = 5;
+  gs.core = &core;
+  gs.goldMiners.amount = 0;
+  gs.goldMiners.cps = 0.08;
+  gs.goldMiners.cost = 5;
   
-  initCore(&core);
   initSections(&gs);
   initCurrencies(&gs);
   initButtons(&gs);
@@ -191,7 +326,7 @@ int main(void) {
   updateGoldLabels(&gs);
   updateFlavorTextLabel(&gs);
 
-  runGame(game_width, game_height, "Mine Hunter");
+  runGame(&core, game_width, game_height, "Mine Hunter");
   destroyGameState(&gs);
   return 0;
 }

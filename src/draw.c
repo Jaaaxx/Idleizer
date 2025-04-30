@@ -11,29 +11,20 @@ bool ColorsEqual(Color c1, Color c2) {
            (c1.a == c2.a);
 }
 
-void drawSection(Section* section) {
-  Rectangle* rec = getSectionRec(section);  
-  DrawRectangleRec(*rec, section->bg); 
-  DrawRectangleLines(rec->x, rec->y, rec->width, rec->height, BLACK);
-}
-
 void drawSections(Section* sections, int count) {
   for (int i = 0; i < count; i++) {
-    drawSection(&sections[i]);
+    Rectangle* rec = getSectionRec(&sections[i]);  
+    DrawRectangleRec(*rec, sections[i].bg); 
+    DrawRectangleLines(rec->x, rec->y, rec->width, rec->height, BLACK);
   }
 }
 
-// draws a button on the screen 
-void drawButton(const Button* b) {
-  Rectangle* rec = getTrueRec(b->rec, b->sec);  
-  DrawRectangleRec(*rec, Fade(LIGHTGRAY, 0.3f));
-  DrawRectangleRoundedLinesEx(*rec, 0.0f, 0.0f, 1.0f, Fade(BLACK, 0.4f));
-  DrawText(b->text, rec->x + 5, rec->y, 20, RED);
-}
-
-void drawButtons(const Button* buttons, const int buttons_count) {
+void drawButtons(Button* buttons, const int buttons_count) {
   for (int i = 0; i < buttons_count; i++) {
-    drawButton(&buttons[i]);
+    Rectangle* rec = getTrueRec(buttons[i].rec, buttons[i].sec);  
+    DrawRectangleRec(*rec, Fade(LIGHTGRAY, 0.3f));
+    DrawRectangleRoundedLinesEx(*rec, 0.0f, 0.0f, 1.0f, Fade(BLACK, 0.4f));
+    DrawText(buttons[i].text, rec->x + 5, rec->y, 20, RED);
   }
 }
 
@@ -52,14 +43,14 @@ void drawCurrencies(Currency* currencies, const int currencies_count) {
 void drawTicker(Ticker ticker, Color color) {
   int nameLen = strlen(ticker.name);
   int arrSize = nameLen * 10;
-  Rectangle* rec = getTrueRec(ticker.pos, ticker.sec);
+  Vector2* vec = getTrueVec(ticker.pos, ticker.sec);
   char* ticker_amount_text = malloc(arrSize);
   sprintf(ticker_amount_text, "%s", ticker.name);
   for (int i = 0; i < ticker.displayTick; i++) {
     ticker_amount_text[nameLen+i] = '.';
   }
   ticker_amount_text[nameLen+ticker.displayTick] = '\0';
-  DrawText(ticker_amount_text, rec->x, rec->y, 20, color);
+  DrawText(ticker_amount_text, vec->x, vec->y, 20, color);
   ticker_amount_text = calloc(arrSize, sizeof(char));
 }
 

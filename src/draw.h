@@ -11,10 +11,8 @@
 
 #define TRANSPARENT CLITERAL(Color){ 255, 255, 255, 0 }
 
-void drawSection(Section* section);
 void drawSections(Section* sections, int count);
-void drawButton(const Button* button); 
-void drawButtons(const Button* buttons, const int buttons_count);
+void drawButtons(Button* buttons, int buttons_count);
 void drawCurrencies(Currency* currencies, int currencies_count); 
 void drawTicker(Ticker ticker, Color color);
 void drawLabels(Label* labels, int labels_count);

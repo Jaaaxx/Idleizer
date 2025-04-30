@@ -1,44 +1,24 @@
 #include "game.h"
 #include <stdbool.h>
 
-int GAME_WIDTH = 0;
-int GAME_HEIGHT = 0;
-
-Core* GAME_CORE = 0;
-
-Section* SECTIONS = 0;
-int SECTIONS_COUNT = 0;
-
-Currency* CURRENCIES = 0; 
-int CURRENCIES_COUNT = 0; 
-
-Button* BUTTONS = 0;
-int BUTTONS_COUNT = 0;
-
-Ticker* TICKERS = 0;
-int TICKERS_COUNT = 0;
-
-Label* LABELS = 0;
-int LABELS_COUNT = 0;
-
 void handleTickers(Ticker* tickers, int tickers_count) {
   bool tickerReached = false;
-  for (int i = 0; i < TICKERS_COUNT; i++) {
+  for (int i = 0; i < tickers_count; i++) {
     tickerReached = false;
-    if (TICKERS[i].tick == TICKERS[i].frequency) {
-      TICKERS[i].tick = 0;
-      TICKERS[i].handler(TICKERS[i].ctx);
+    if (tickers[i].tick == tickers[i].frequency) {
+      tickers[i].tick = 0;
+      tickers[i].handler(tickers[i].ctx);
       tickerReached = true;
-      if (TICKERS[i].displayTick == 10) {
-        TICKERS[i].displayTick = 0;
+      if (tickers[i].displayTick == 10) {
+        tickers[i].displayTick = 0;
       }
-      TICKERS[i].displayTick++;
+      tickers[i].displayTick++;
     }
     
-    if (!TICKERS[i].hidden) {
-      drawTicker(TICKERS[i], BLACK);
+    if (!tickers[i].hidden) {
+      drawTicker(tickers[i], BLACK);
     }
-    TICKERS[i].tick++;
+    tickers[i].tick++;
   }
 }
 
@@ -55,7 +35,3 @@ void mouseButtonsHandler(Button* buttons, int buttons_count, int* mouseBtn) {
   }
 }
 
-void setGameSize(int game_width, int game_height) {
-  GAME_WIDTH = game_width;
-  GAME_HEIGHT = game_height;
-}

@@ -22,14 +22,18 @@ typedef struct {
   char text[64];
 } TextBuffer;
 
-void runGame(int game_width, int game_height, char* title);
+void runGame(Core* core, int game_width, int game_height, char* title);
 
-void initCore(Core* core);
-void setupCurrencies(Currency* currencies, int count);
-void setupButtons(Button* buttons, int count);
-void setupTickers(Ticker* tickers, int count);
-void setupLabels(Label* labels, int count);
-void setupSections(Section* sections, int count);
 void destroyCore(Core* core);
 void setTextBuffer(TextBuffer* buffer, const char* fmt, ...);
+void createSections(Core* core, const VrRec* rects, const Color* colors,
+                    const int* parent_indices, int count);
+void createCurrencies(Core* core, const char** names, const VrVec* positions, 
+                      Section** parents, int count);
+void createButtons(Core* core, const char** texts, const VrRec* recs,
+                   void (**handlers)(void *), void* gameState, Section** secs, int count);
+void createLabels(Core* core, char** texts, VrVec* vecs, Color* colors,
+                  bool* hiddens, Section** parents, int count);
+void createTickers(Core* core, char** texts, VrVec* secs, int* frequencies, void (**handlers)(void *), 
+                   void* gameState, Section** parents, bool* hiddens, int count);
 #endif
