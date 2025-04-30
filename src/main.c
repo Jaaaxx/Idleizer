@@ -13,6 +13,8 @@ typedef struct GameSections {
   Section* gameArea;
   Section* mainArea;
   Section* shopArea;
+  Section* displayArea;
+  Section* optionsArea;
 } GameSections;
 
 typedef struct GameState {
@@ -62,6 +64,9 @@ static void goldMinerClickHandler(void* ctx) {
     gs->gold->amount -= gs->gold_miner_cost;
     gs->gold_miners++;
     gs->gold_miner_cost *= 1.15;
+    gs->core.labels[0].hidden = false;
+    gs->core.labels[1].hidden = false;
+    gs->core.tickers[0].active = true;
     updateGoldLabels(gs);
   }
 }
@@ -72,20 +77,24 @@ static void goldMinerHandler(void* ctx) {
 }
 
 static void initSections(GameState* gs) {
-  Section* sects = malloc(sizeof(Section) * 3);
+  Section* sects = malloc(sizeof(Section) * 5);
 
   sects[0] = (Section){ { 0, 0, (float)game_width, (float)game_height }, TRANSPARENT };
-  sects[1] = (Section){ { 0.0f, 0.0f, 50.0f, 100.0f }, YELLOW, &sects[0] };
-  sects[2] = (Section){ { 50.0f, 0.0f, 50.0f, 100.0f }, GRAY, &sects[0] };
+  sects[1] = (Section){ { 0.0f, 0.0f, 30.0f, 100.0f }, YELLOW, &sects[0] };
+  sects[2] = (Section){ { 30, 0, 45, 100 }, BLUE, &sects[0] };
+  sects[3] = (Section){ {0, 0, 100, 10}, PURPLE, &sects[2] };
+  sects[4] = (Section){ { 75.0f, 0.0f, 25.0f, 100.0f }, GRAY, &sects[0] };
 
   GameSections* gameSects = malloc(sizeof(GameSections));
   gameSects->gameArea = &sects[0];
   gameSects->mainArea = &sects[1];
-  gameSects->shopArea = &sects[2];
+  gameSects->displayArea = &sects[2];
+  gameSects->optionsArea = &sects[3];
+  gameSects->shopArea = &sects[4];
 
   gs->sections = gameSects;
 
-  setupSections(sects, 3);
+  setupSections(sects, 5);
   gs->core.sections = sects;
 }
 static void initCurrencies(GameState* gs) {
@@ -106,7 +115,7 @@ static void initButtons(GameState* gs) {
   Button* buttons = malloc(sizeof(Button) * 3);
   buttons[0] = (Button) { { 10, 40, 30, 20 }, "Mine", goldClickHandler, gs, secs->mainArea };
   buttons[1] = (Button) { { 60, 40, 30, 20 }, "Mine silver", silverClickHandler, gs, secs->mainArea };
-  buttons[2] = (Button) { { 5, 10, 30, 10 }, 
+  buttons[2] = (Button) { { 5, 10, 80, 10 }, 
     gs->texts.buy_gold_miner_button.text, goldMinerClickHandler, gs, secs->shopArea };
   setupButtons(buttons, 3);
   gs->core.buttons = buttons;
@@ -115,8 +124,8 @@ static void initButtons(GameState* gs) {
 static void initLabels(GameState* gs) { 
   GameSections* secs = gs->sections;
   Label* labels = malloc(sizeof(Label) * 2);
-  labels[0] = (Label) { gs->texts.gold_miners_label.text, { 40, 10 }, 20, BLACK, false, secs->shopArea };
-  labels[1] = (Label) { gs->texts.gold_miners_cps_label.text, {40, 15}, 20, BLACK, false, secs->shopArea };
+  labels[0] = (Label) { gs->texts.gold_miners_label.text, { 10, 15 }, 20, BLACK, true, secs->displayArea};
+  labels[1] = (Label) { gs->texts.gold_miners_cps_label.text, {10, 20}, 20, BLACK, true, secs->displayArea};
   setupLabels(labels, 2);
   gs->core.labels = labels;
 }
@@ -124,7 +133,7 @@ static void initLabels(GameState* gs) {
 static void initTickers(GameState* gs) {
   GameSections* secs = gs->sections;
   Ticker* tickers = malloc(sizeof(Ticker) * 1);
-  tickers[0] = (Ticker) { "Mining", 6, 0, { 70, 10 }, goldMinerHandler, gs, secs->shopArea };
+  tickers[0] = (Ticker) { "Mining", 6, 0, 0, {50, 17.5f}, goldMinerHandler, gs, secs->displayArea, false};
   setupTickers(tickers, 1);
   gs->core.tickers = tickers;
 }

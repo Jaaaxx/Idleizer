@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 bool ColorsEqual(Color c1, Color c2) {
     return (c1.r == c2.r) &&
@@ -49,10 +50,15 @@ void drawCurrencies(Currency* currencies, const int currencies_count) {
 }
 
 void drawTicker(Ticker ticker, Color color) {
-  int arrSize = sizeof(ticker.name) + sizeof(char) * 30;
+  int nameLen = strlen(ticker.name);
+  int arrSize = nameLen * 10;
   Rectangle* rec = getTrueRec(ticker.pos, ticker.sec);
   char* ticker_amount_text = malloc(arrSize);
-  sprintf(ticker_amount_text, "%s: %d/%d", ticker.name, ticker.tick, ticker.frequency);
+  sprintf(ticker_amount_text, "%s", ticker.name);
+  for (int i = 0; i < ticker.displayTick; i++) {
+    ticker_amount_text[nameLen+i] = '.';
+  }
+  ticker_amount_text[nameLen+ticker.displayTick] = '\0';
   DrawText(ticker_amount_text, rec->x, rec->y, 20, color);
   ticker_amount_text = calloc(arrSize, sizeof(char));
 }

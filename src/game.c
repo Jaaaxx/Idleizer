@@ -27,9 +27,15 @@ void handleTickers(Ticker* tickers, int tickers_count) {
       TICKERS[i].tick = 0;
       TICKERS[i].handler(TICKERS[i].ctx);
       tickerReached = true;
+      if (TICKERS[i].displayTick == 10) {
+        TICKERS[i].displayTick = 0;
+      }
+      TICKERS[i].displayTick++;
     }
     
-    // drawTicker(TICKERS[i], tickerReached ? RED : BLACK);
+    if (TICKERS[i].active) {
+      drawTicker(TICKERS[i], BLACK);
+    }
     TICKERS[i].tick++;
   }
 }
