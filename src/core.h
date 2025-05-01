@@ -6,6 +6,8 @@
 #include "label.h"
 #include "ticker.h"
 
+typedef struct Building Building;
+
 typedef struct Core {
   Section* sections;
   int sections_size;
@@ -17,7 +19,7 @@ typedef struct Core {
   int labels_size;
   Ticker* tickers;
   int tickers_size;
-
+  Building* buildings;
   int buildings_size;
 } Core;
 
