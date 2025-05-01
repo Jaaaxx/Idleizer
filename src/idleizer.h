@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stddef.h>
 
 #include "currency.h"
 #include "button.h"
@@ -36,6 +37,10 @@ void createLabels(Core* core, char** texts, VrVec* vecs, Color* colors,
                   bool* hiddens, Section** parents, int count);
 void createTickers(Core* core, char** texts, VrVec* secs, int* frequencies, void (**handlers)(void *), 
                    void** ctxs, Section** parents, bool* hiddens, int count);
+
+int addSection(Core* core, const VrRec rect, const Color color, const Section* parent);
+
+int addCurrency(Core* core, const char* name, const VrVec position, Section* parent);
 
 int addTicker(Core* core, char* name, VrVec pos, int frequency,
                   void (*handler)(void*), void* ctx, bool hidden, Section* sec);

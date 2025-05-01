@@ -69,6 +69,17 @@ void createSections(Core* core, const VrRec* rects, const Color* colors,
   core->sections_size = count;
 }
 
+int addSection(Core* core, const VrRec rect, const Color color, const Section* parent) {
+  core->sections = realloc(core->sections, sizeof(Section) * (core->sections_size + 1));
+
+  Section* s = &core->sections[core->sections_size];
+  s->rec = rect;
+  s->bg = color;
+  s->sec = parent;
+
+  return core->sections_size++;
+}
+
 void createCurrencies(Core* core, const char** names, const VrVec* positions, Section** parents, int count) {
   Currency* currencies = malloc(sizeof(Currency) * count);
   for (int i = 0; i < count; i++) {
@@ -79,6 +90,18 @@ void createCurrencies(Core* core, const char** names, const VrVec* positions, Se
   }
   core->currencies = currencies;
   core->currencies_size = count;
+}
+
+int addCurrency(Core* core, const char* name, const VrVec position, Section* parent) {
+  core->currencies = realloc(core->currencies, sizeof(Currency) * (core->currencies_size + 1));
+
+  Currency* c = &core->currencies[core->currencies_size];
+  c->name = name;
+  c->amount = 0.0;
+  c->pos = position;
+  c->sec = parent;
+
+  return core->currencies_size++;
 }
 
 void createButtons(Core* core, const char** texts, const VrRec* recs,

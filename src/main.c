@@ -29,11 +29,11 @@ typedef struct {
 } GameTexts;
 
 typedef struct GameSections {
-  Section* gameArea;
-  Section* mainArea;
-  Section* shopArea;
-  Section* displayArea;
-  Section* optionsArea;
+  int gameArea;
+  int mainArea;
+  int shopArea;
+  int displayArea;
+  int optionsArea;
 } GameSections;
 
 typedef struct GameCurrencies {
@@ -57,6 +57,7 @@ typedef struct BuildingCtx {
   BuildingLabels* labels;
   BuildingTickers* tickers;
   BuildingTexts* texts;
+  int displaySect;
 } BuildingCtx;
 
 
@@ -91,8 +92,8 @@ static void initSections(GameState* gs) {
   VrRec rects[] = {
     { 0, 0, game_width, game_height },   // gameArea
     { 0.0f, 0.0f, 30.0f, 100.0f }, // mainArea
-    { 30.0f, 0.0f, 45.0f, 100.0f }, // displayArea
-    { 0.0f, 0.0f, 100.0f, 10.0f }, // optionsArea
+    { 30.0f, 10.0f, 45.0f, 90.0f }, // displayArea
+    { 30.0f, 0.0f, 45.0f, 10.0f }, // optionsArea
     { 75.0f, 0.0f, 25.0f, 100.0f }  // shopArea
   };
 
@@ -108,18 +109,18 @@ static void initSections(GameState* gs) {
     -1, // gameArea has no parent
      0, // mainArea → gameArea
      0, // displayArea → gameArea
-     2, // optionsArea → displayArea
+     0, // optionsArea → displayArea
      0  // shopArea → gameArea
   };
 
   createSections(gs->core, rects, colors, parent_indices, count);
 
   GameSections* gameSects = malloc(sizeof(GameSections));
-  gameSects->gameArea     = &gs->core->sections[0];
-  gameSects->mainArea     = &gs->core->sections[1];
-  gameSects->displayArea  = &gs->core->sections[2];
-  gameSects->optionsArea  = &gs->core->sections[3];
-  gameSects->shopArea     = &gs->core->sections[4];
+  gameSects->gameArea     = 0;
+  gameSects->mainArea     = 1;
+  gameSects->displayArea  = 2;
+  gameSects->optionsArea  = 3;
+  gameSects->shopArea     = 4;
 
   gs->sections = gameSects;
 }
@@ -140,8 +141,8 @@ static void initCurrencies(GameState* gs) {
   };
 
   Section* parents[] = { 
-    secs->mainArea, 
-    secs->mainArea 
+    &gs->core->sections[secs->mainArea], 
+    &gs->core->sections[secs->mainArea] 
   };
 
   createCurrencies(gs->core, names, positions, parents, count);
@@ -196,12 +197,12 @@ static void initButtons(GameState* gs) {
   };
   
   Section* parents[] = { 
-    secs->mainArea, 
-    secs->mainArea, 
-    secs->optionsArea,
-    secs->optionsArea, 
-    secs->optionsArea, 
-    secs->optionsArea
+    &gs->core->sections[secs->mainArea], 
+    &gs->core->sections[secs->mainArea], 
+    &gs->core->sections[secs->optionsArea],
+    &gs->core->sections[secs->optionsArea], 
+    &gs->core->sections[secs->optionsArea], 
+    &gs->core->sections[secs->optionsArea]
   };
 
   createButtons(gs->core, texts, positions, handlers, ctxs, parents, count);
@@ -229,7 +230,7 @@ static void initLabels(GameState* gs) {
   };
 
   Section* parents[] = {
-    secs->optionsArea
+    &gs->core->sections[secs->optionsArea]
   };
 
   createLabels(gs->core, texts, positions, colors, hiddens, parents, count);
@@ -261,7 +262,7 @@ static void initTickers(GameState* gs) {
   };
 
   Section* parents[] = {
-    secs->gameArea
+    &gs->core->sections[secs->gameArea]
   };
   
   bool hiddens[] = {
@@ -272,9 +273,6 @@ static void initTickers(GameState* gs) {
 }
 
 static void destroyGameState(GameState* gs) {
-  free(gs->sections->gameArea); 
-  free(gs->sections->mainArea); 
-  free(gs->sections->shopArea); 
   free(gs->sections);
   destroyCore(gs->core);
 }
@@ -310,15 +308,20 @@ static VrVec calcBuildingOffsetPos(int buildings_size, int startX, int startY, i
 }
 
 static VrVec calcNextTickerPos(GameState* gs) {
-  return calcBuildingOffsetPos(gs->core->buildings_size, 60, 12, 12.5);
+  return calcBuildingOffsetPos(gs->core->buildings_size, 60, 12, 3);
 }
 
 static VrVec calcNextLabelPosAmount(GameState* gs) {
-   return calcBuildingOffsetPos(gs->core->buildings_size, 10, 12, 12.5);
+   return calcBuildingOffsetPos(gs->core->buildings_size, 10, 12, 3);
 }
 
 static VrVec calcNextLabelPosCPS(GameState* gs) {
-  return calcBuildingOffsetPos(gs->core->buildings_size, 10, 12, 17.5);
+  return calcBuildingOffsetPos(gs->core->buildings_size, 10, 12, 8);
+}
+
+static VrRec calcNextSectionPos(GameState* gs) {
+  VrRec ret = { 0, 15 * gs->core->buildings_size, 100, 10 };
+  return ret;
 }
 
 static VrRec calcNextButtonPos(GameState* gs) {
@@ -346,21 +349,28 @@ static void setupBuilding(GameState* gs, char* name, double cps, double cost,
   ctx->labels = bl;
   ctx->tickers = btickers;
 
+  Section* secs = gs->core->sections;
+
+  // Default Building Sections
+   ctx->displaySect = addSection(gs->core, calcNextSectionPos(gs), GRAY, 
+                                 &secs[gs->sections->displayArea]);
+
   // Default Building Tickers
   ctx->tickers->mTicker = addTicker(gs->core, name, calcNextTickerPos(gs),
-                                    6, defBuildTicker, ctx, true, gs->sections->displayArea);
+                                    6, defBuildTicker, ctx, true, 
+                                    &secs[gs->sections->displayArea]);
 
   // Default Building Labels
   ctx->texts = malloc(sizeof(BuildingTexts));
 
   ctx->labels->amountLabel = addLabel(gs->core, ctx->texts->amount.text, calcNextLabelPosAmount(gs), 
-                                      BLACK, true, gs->sections->displayArea);
+                                      BLACK, true, &secs[gs->sections->displayArea]);
   ctx->labels->cpsLabel    = addLabel(gs->core, ctx->texts->cps.text, calcNextLabelPosCPS(gs), 
-                                      BLACK, true, gs->sections->displayArea);
+                                      BLACK, true, &secs[gs->sections->displayArea]);
 
   // Default Building Buttons 
   addButton(gs->core, ctx->texts->button.text, calcNextButtonPos(gs), 
-            defBuildButton, ctx, gs->sections->shopArea);
+            defBuildButton, ctx, &secs[gs->sections->shopArea]);
 
   defBuildingUpdateLabels(ctx);
   
@@ -391,8 +401,6 @@ int main(void) {
 }
 
 
-// todo addSection/addCurrency
-// Store sections, currencies, buttons in ctx
 // add calculated CPS total under each currency total
 // new buildings should create their own sections
 // finally, move all of these new changes to engine and organize engine code
