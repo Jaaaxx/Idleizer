@@ -13,6 +13,7 @@
 
 void drawSections(Core* core);
 void drawButtons(Core* core);
+void drawCurrency(Core* core, Currency* c);
 void drawCurrencies(Core* core);
 void drawTicker(Core* core, Ticker* ticker, Color color);
 void drawLabels(Core* core);

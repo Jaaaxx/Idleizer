@@ -11,6 +11,7 @@ typedef struct {
   VrVec pos;
   int sec;
   bool hidden;
+  double cps;
 } Currency;
 
 #endif

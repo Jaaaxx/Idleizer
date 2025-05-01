@@ -20,12 +20,12 @@ void runGame(Core* core, int game_width, int game_height, char* title) {
 
     drawSections(core);
     drawLabels(core);
-    drawCurrencies(core);
     drawButtons(core);
    
     // handles the logic for and draws tickers
     handleTickers(core);
-		
+	  handleCurrencies(core);
+
 		EndDrawing();
 	}
   

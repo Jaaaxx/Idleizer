@@ -36,17 +36,26 @@ void drawButtons(Core* core) {
   }
 }
 
+void drawCurrency(Core* core, Currency* c) {
+  if (!c->hidden) {
+    Vector2* rec = getTrueVec(core, c->pos, getSection(core, c->sec));
+
+    int arrSize = sizeof(c->name) + sizeof(char) * 30;
+    char* currency_amount_text = malloc(arrSize);
+    char* currency_cps_text = malloc(33);
+    sprintf(currency_amount_text, "%s: %.0f", c->name, c->amount);
+    sprintf(currency_cps_text, "CPS: %.2f", c->cps);
+    DrawText(currency_amount_text, rec->x, rec->y, 20, RED);
+    DrawText(currency_cps_text, rec->x, rec->y + 25, 20, RED);
+    currency_amount_text = calloc(arrSize, sizeof(char));
+  }
+}
+
 void drawCurrencies(Core* core) {
   for (int i = 0; i < core->currencies_size; i++) {
     const Currency* c = &core->currencies[i];
     if (!c->hidden) {
-      Vector2* rec = getTrueVec(core, c->pos, getSection(core, c->sec));
-
-      int arrSize = sizeof(c->name) + sizeof(char) * 30;
-      char* currency_amount_text = malloc(arrSize);
-      sprintf(currency_amount_text, "%s: %.0f", c->name, c->amount);
-      DrawText(currency_amount_text, rec->x, rec->y, 20, RED);
-      currency_amount_text = calloc(arrSize, sizeof(char));
+      drawCurrency(core, c);
     }
   }
 }

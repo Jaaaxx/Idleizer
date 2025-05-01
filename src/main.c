@@ -265,31 +265,31 @@ static void initTickers(GameState* gs) {
   int count = 1;
 
   char* texts[] = {
-    "Updating Flavor Text"
+    "Updating Flavor Text",
   };
 
   int frequencies[] = {
-    1200
+    1200,
   };
 
   VrVec positions[] = {
-    {0, 0}
+    {0, 0},
   };
 
   void (*handlers[])(void*) = {
-    updateFlavorTextLabel
+    updateFlavorTextLabel,
   };
 
   void* ctxs[] = {
-    gs
+    gs,
   };
 
   int parents[] = {
-    secs->gameArea
+    secs->gameArea,
   };
   
   bool hiddens[] = {
-    true
+    true,
   };
 
   createTickers(gs->core, texts, positions, frequencies, handlers, ctxs, parents, hiddens, count);
@@ -384,10 +384,6 @@ static void setupBuilding(GameState* gs, char* name, double cps, double cost,
   // Default Building Sections
   ctx->displaySect = addSection(gs->core, calcNextSectionPos(gs), GRAY, true, gs->sections->displayArea);
 
-
-  // Default Building Currencies (testing)
-  ctx->createdCurr = addCurrency(gs->core, "Tin", (VrVec) { 10, 15 }, true, gs->sections->mainArea);
-
   // Default Building Tickers
   ctx->tickers->mTicker = addTicker(gs->core, name, calcNextTickerPos(gs),
                                     6, defBuildTicker, ctx, true, 
@@ -435,5 +431,4 @@ int main(void) {
 
 
 // add calculated CPS total under each currency total
-// new buildings should create their own sections
 // finally, move all of these new changes to engine and organize engine code
