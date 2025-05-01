@@ -1,32 +1,39 @@
 #include "game.h"
 #include <stdbool.h>
+#include <stddef.h>
 
-void handleTickers(Ticker* tickers, int tickers_count) {
+Section *getSection(Core *core, int idx) {
+  return idx >= 0 ? &core->sections[idx] : NULL;
+}
+
+void handleTickers(Core* core) {
   bool tickerReached = false;
-  for (int i = 0; i < tickers_count; i++) {
+  for (int i = 0; i < core->tickers_size; i++) {
+    Ticker* t = &core->tickers[i];
     tickerReached = false;
-    if (tickers[i].tick == tickers[i].frequency) {
-      tickers[i].tick = 0;
-      tickers[i].handler(tickers[i].ctx);
+    if (t->tick == t->frequency) {
+      t->tick = 0;
+      t->handler(t->ctx);
       tickerReached = true;
-      if (tickers[i].displayTick == 10) {
-        tickers[i].displayTick = 0;
+      if (t->displayTick == 10) {
+        t->displayTick = 0;
       }
-      tickers[i].displayTick++;
+      t->displayTick++;
     }
     
-    if (!tickers[i].hidden) {
-      drawTicker(tickers[i], BLACK);
+    if (!t->hidden) {
+      drawTicker(core, t, BLACK);
     }
-    tickers[i].tick++;
+    t->tick++;
   }
 }
 
-void mouseButtonsHandler(Button* buttons, int buttons_count, int* mouseBtn) {
-  for (int i = 0; i < buttons_count; i++) {
-    if (CheckCollisionPointRec(GetMousePosition(), *getTrueRec(buttons[i].rec, buttons[i].sec))) {
+void mouseButtonsHandler(Core* core, int* mouseBtn) {
+  for (int i = 0; i < core->buttons_size; i++) {
+    Button* b = &core->buttons[i];
+    if (CheckCollisionPointRec(GetMousePosition(), *getTrueRec(core, b->rec, getSection(core, b->sec)))) {
       if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && *mouseBtn != 1) {
-        buttons[i].handler(buttons[i].ctx);
+        b->handler(b->ctx);
         *mouseBtn = 1;
       } else if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         *mouseBtn = -1;

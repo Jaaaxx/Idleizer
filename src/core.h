@@ -1,5 +1,10 @@
 #ifndef CORE_H
 #define CORE_H
+#include "section.h"
+#include "currency.h"
+#include "button.h"
+#include "label.h"
+#include "ticker.h"
 
 typedef struct Core {
   Section* sections;

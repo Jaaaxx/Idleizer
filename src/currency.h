@@ -3,12 +3,14 @@
 #include "raylib.h"
 #include "vr_vec.h"
 #include "section.h"
+#include <stdbool.h>
 
 typedef struct {
   char* name;
   double amount;
   VrVec pos;
-  Section* sec;
+  int sec;
+  bool hidden;
 } Currency;
 
 #endif

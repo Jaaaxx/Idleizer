@@ -9,6 +9,6 @@ typedef struct {
   int fontSize;
   Color color;
   bool hidden;
-  Section* sec;
+  int sec;
 } Label;
 #endif

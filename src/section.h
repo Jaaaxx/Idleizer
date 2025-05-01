@@ -2,16 +2,20 @@
 #define SECTION_H
 #include "raylib.h"
 #include "vr_rec.h"
+#include <stdbool.h>
+
+typedef struct Core Core;
 
 typedef struct Section {
   VrRec rec;
   Color bg;
-  Section* sec;
+  int parent;
+  bool hidden;
 } Section;
 
-float getSecWidth(Section* sec);
-float getSecX(Section* sec);
-float getSecHeight(Section* sec);
-float getSecY(Section* sec);
+float getSecWidth(Core* core, Section* sec);
+float getSecX(Core* core, Section* sec);
+float getSecHeight(Core* core, Section* sec);
+float getSecY(Core* core, Section* sec);
 
 #endif

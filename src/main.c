@@ -37,8 +37,8 @@ typedef struct GameSections {
 } GameSections;
 
 typedef struct GameCurrencies {
-  Currency* gold;
-  Currency* silver;
+  int gold;
+  int silver;
 } GameCurrencies;
 
 typedef struct GameState {
@@ -52,12 +52,13 @@ typedef struct BuildingCtx {
   GameState* gs;
   char* name;
   BuildingVals* bv;
-  Currency* bCurr;
-  Currency* gCurr;
+  int bCurr;
+  int gCurr;
   BuildingLabels* labels;
   BuildingTickers* tickers;
   BuildingTexts* texts;
   int displaySect;
+  int createdCurr;
 } BuildingCtx;
 
 
@@ -78,12 +79,12 @@ static void updateFlavorTextLabel(void* ctx) {
 
 static void goldClickHandler(void* ctx) {
   GameState* gs = (GameState*) ctx;
-  gs->currencies->gold->amount += 1;
+  gs->core->currencies[gs->currencies->gold].amount += 1;
 }
 
 static void silverClickHandler(void* ctx) {
   GameState* gs = (GameState*) ctx;
-  gs->currencies->silver->amount += 1;
+  gs->core->currencies[gs->currencies->silver].amount += 1;
 }
 
 static void initSections(GameState* gs) {
@@ -105,6 +106,14 @@ static void initSections(GameState* gs) {
     GRAY         // shopArea
   };
 
+  bool hiddens[] = {
+    false,
+    false,
+    false,
+    false,
+    false
+  };
+
   int parent_indices[] = {
     -1, // gameArea has no parent
      0, // mainArea → gameArea
@@ -113,7 +122,7 @@ static void initSections(GameState* gs) {
      0  // shopArea → gameArea
   };
 
-  createSections(gs->core, rects, colors, parent_indices, count);
+  createSections(gs->core, rects, colors, parent_indices, hiddens, count);
 
   GameSections* gameSects = malloc(sizeof(GameSections));
   gameSects->gameArea     = 0;
@@ -140,16 +149,21 @@ static void initCurrencies(GameState* gs) {
     {60, 10} 
   };
 
-  Section* parents[] = { 
-    &gs->core->sections[secs->mainArea], 
-    &gs->core->sections[secs->mainArea] 
+  bool hiddens[] = {
+    false,
+    false
   };
 
-  createCurrencies(gs->core, names, positions, parents, count);
+  int parents[] = { 
+    secs->mainArea, 
+    secs->mainArea 
+  };
+
+  createCurrencies(gs->core, names, positions, parents, hiddens, count);
   
   GameCurrencies* gameCurrs = malloc(sizeof(GameCurrencies));
-  gameCurrs->gold   = &gs->core->currencies[0];
-  gameCurrs->silver = &gs->core->currencies[1];
+  gameCurrs->gold   = 0;
+  gameCurrs->silver = 1;
 
   gs->currencies = gameCurrs; 
 }
@@ -195,17 +209,26 @@ static void initButtons(GameState* gs) {
     gs,
     gs
   };
+
+  bool hiddens[] = {
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  };
   
-  Section* parents[] = { 
-    &gs->core->sections[secs->mainArea], 
-    &gs->core->sections[secs->mainArea], 
-    &gs->core->sections[secs->optionsArea],
-    &gs->core->sections[secs->optionsArea], 
-    &gs->core->sections[secs->optionsArea], 
-    &gs->core->sections[secs->optionsArea]
+  int parents[] = { 
+    secs->mainArea, 
+    secs->mainArea, 
+    secs->optionsArea,
+    secs->optionsArea, 
+    secs->optionsArea, 
+    secs->optionsArea
   };
 
-  createButtons(gs->core, texts, positions, handlers, ctxs, parents, count);
+  createButtons(gs->core, texts, positions, handlers, ctxs, parents, hiddens, count);
 }
 
 
@@ -229,8 +252,8 @@ static void initLabels(GameState* gs) {
     false
   };
 
-  Section* parents[] = {
-    &gs->core->sections[secs->optionsArea]
+  int parents[] = {
+    secs->optionsArea
   };
 
   createLabels(gs->core, texts, positions, colors, hiddens, parents, count);
@@ -261,8 +284,8 @@ static void initTickers(GameState* gs) {
     gs
   };
 
-  Section* parents[] = {
-    &gs->core->sections[secs->gameArea]
+  int parents[] = {
+    secs->gameArea
   };
   
   bool hiddens[] = {
@@ -279,25 +302,32 @@ static void destroyGameState(GameState* gs) {
 
 static void defBuildTicker(void* context) {
   BuildingCtx* ctx = (BuildingCtx*) context;
-  ctx->gCurr->amount += ((double) ctx->bv->amount) * ctx->bv->cps / 10.0;
+  Currency* currs = ctx->gs->core->currencies;
+  currs[ctx->gCurr].amount += ((double) ctx->bv->amount) * ctx->bv->cps / 10.0;
 }
 
 static void defBuildingUpdateLabels(BuildingCtx* ctx) {
+  Currency* currs = ctx->gs->core->currencies;
   setTextBuffer(&(ctx->texts->amount), "%s: %d", ctx->name, ctx->bv->amount);
-  setTextBuffer(&(ctx->texts->cps), "Per Second: %.1f %s", ctx->bv->amount*ctx->bv->cps, ctx->gCurr->name);
-  setTextBuffer(&(ctx->texts->button), "Buy %s\n Costs %.1f %s", ctx->name,ctx->bv->cost,ctx->bCurr->name);
+  setTextBuffer(&(ctx->texts->cps), "Per Second: %.1f %s", ctx->bv->amount*ctx->bv->cps,
+                currs[ctx->gCurr].name);
+  setTextBuffer(&(ctx->texts->button), "Buy %s\n Costs %.1f %s", ctx->name,ctx->bv->cost,
+                currs[ctx->bCurr].name);
 }
 
 static void defBuildButton(void* context) {
   BuildingCtx* ctx = (BuildingCtx*) context;
-  if (ctx->bCurr->amount >= ctx->bv->cost) {
+  Currency* currs = ctx->gs->core->currencies;
+  if (currs[ctx->bCurr].amount >= ctx->bv->cost) {
     Core* core = ctx->gs->core;
-    ctx->bCurr->amount -= ctx->bv->cost;
+    currs[ctx->bCurr].amount -= ctx->bv->cost;
     ctx->bv->amount++;
     ctx->bv->cost *= 1.15;
     core->labels[ctx->labels->amountLabel].hidden = false;
     core->labels[ctx->labels->cpsLabel].hidden = false;
     core->tickers[ctx->tickers->mTicker].hidden = false;
+    core->sections[ctx->displaySect].hidden = false;
+    core->currencies[ctx->createdCurr].hidden = false;
     defBuildingUpdateLabels(ctx);
   }
 }
@@ -320,7 +350,7 @@ static VrVec calcNextLabelPosCPS(GameState* gs) {
 }
 
 static VrRec calcNextSectionPos(GameState* gs) {
-  VrRec ret = { 0, 15 * gs->core->buildings_size, 100, 10 };
+  VrRec ret = { 0, 13 * gs->core->buildings_size, 100, 13 };
   return ret;
 }
 
@@ -331,7 +361,7 @@ static VrRec calcNextButtonPos(GameState* gs) {
 
 
 static void setupBuilding(GameState* gs, char* name, double cps, double cost, 
-                          Currency* bCurr, Currency* gCurr) {
+                          int bCurr, int gCurr) {
   BuildingVals* bv = malloc(sizeof(BuildingVals));
   bv->amount = 0;
   bv->cps = cps;
@@ -352,25 +382,28 @@ static void setupBuilding(GameState* gs, char* name, double cps, double cost,
   Section* secs = gs->core->sections;
 
   // Default Building Sections
-   ctx->displaySect = addSection(gs->core, calcNextSectionPos(gs), GRAY, 
-                                 &secs[gs->sections->displayArea]);
+  ctx->displaySect = addSection(gs->core, calcNextSectionPos(gs), GRAY, true, gs->sections->displayArea);
+
+
+  // Default Building Currencies (testing)
+  ctx->createdCurr = addCurrency(gs->core, "Tin", (VrVec) { 10, 15 }, true, gs->sections->mainArea);
 
   // Default Building Tickers
   ctx->tickers->mTicker = addTicker(gs->core, name, calcNextTickerPos(gs),
                                     6, defBuildTicker, ctx, true, 
-                                    &secs[gs->sections->displayArea]);
+                                    gs->sections->displayArea);
 
   // Default Building Labels
   ctx->texts = malloc(sizeof(BuildingTexts));
 
   ctx->labels->amountLabel = addLabel(gs->core, ctx->texts->amount.text, calcNextLabelPosAmount(gs), 
-                                      BLACK, true, &secs[gs->sections->displayArea]);
+                                      BLACK, true, gs->sections->displayArea);
   ctx->labels->cpsLabel    = addLabel(gs->core, ctx->texts->cps.text, calcNextLabelPosCPS(gs), 
-                                      BLACK, true, &secs[gs->sections->displayArea]);
+                                      BLACK, true, gs->sections->displayArea);
 
   // Default Building Buttons 
   addButton(gs->core, ctx->texts->button.text, calcNextButtonPos(gs), 
-            defBuildButton, ctx, &secs[gs->sections->shopArea]);
+            defBuildButton, ctx, false, gs->sections->shopArea);
 
   defBuildingUpdateLabels(ctx);
   

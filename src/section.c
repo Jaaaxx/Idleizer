@@ -1,47 +1,52 @@
-#include "section.h"
 #include <stdio.h>
+#include "section.h"
+#include "core.h"
 
-float getSecWidth(Section* sec) {
+float getSecWidth(Core* core, Section* sec) {
+  Section* secs = core->sections;
   if (sec == 0) {
     return 1;
   }
-  if (sec->sec == 0) {
+  if (sec->parent == -1) {
     // equivalent to GAME_WIDTH
     return sec->rec.w;
   }
 
-  return (sec->rec.w / 100) * getSecWidth(sec->sec);
+  return (sec->rec.w / 100) * getSecWidth(core, &secs[sec->parent]);
 }
 
-float getSecHeight(Section* sec) {
+float getSecHeight(Core* core, Section* sec) {
+  Section* secs = core->sections;
   if (sec == 0) {
     return 1;
   }
-   if (sec->sec == 0) {
+   if (sec->parent == -1) {
     // equivalent to GAME_HEIGHT
     return sec->rec.h;
   }
 
-  return (sec->rec.h / 100) * getSecHeight(sec->sec);
+  return (sec->rec.h / 100) * getSecHeight(core, &secs[sec->parent]);
 }
-float getSecX(Section* sec) {
+float getSecX(Core* core, Section* sec) {
+  Section* secs = core->sections;
   if (sec == 0) {
     return 0;
   }
-  if (sec->sec == 0) {
+  if (sec->parent == -1) {
     return sec->rec.x;
   }
 
-  return (sec->rec.x / 100) * getSecWidth(sec->sec) + getSecX(sec->sec);
+  return (sec->rec.x / 100) * getSecWidth(core, &secs[sec->parent]) + getSecX(core, &secs[sec->parent]);
 }
 
-float getSecY(Section* sec) {
+float getSecY(Core* core, Section* sec) {
+  Section* secs = core->sections;
   if (sec == 0) {
     return 0;
   }
-  if (sec->sec == 0) {
+  if (sec->parent == -1) {
     return sec->rec.y;
   }
 
-  return (sec->rec.y / 100) * getSecHeight(sec->sec) + getSecY(sec->sec);
+  return (sec->rec.y / 100) * getSecHeight(core, &secs[sec->parent]) + getSecY(core, &secs[sec->parent]);
 }

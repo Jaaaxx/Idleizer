@@ -9,6 +9,8 @@
 #include "label.h"
 #include "core.h"
 
-void handleTickers();
-void mouseButtonsHandler(Button* buttons, int buttons_count, int* mouseBtn);
+Section* getSection(Core* core, int idx);
+
+void handleTickers(Core* core);
+void mouseButtonsHandler(Core* core, int* mouseBtn);
 #endif

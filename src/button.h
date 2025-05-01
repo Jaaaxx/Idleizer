@@ -4,13 +4,15 @@
 #include "raylib.h"
 #include "vr_rec.h"
 #include "section.h"
+#include <stdbool.h>
 
 typedef struct {
   char* text;
   VrRec rec;
   void (*handler)(void*);
   void* ctx;
-  Section* sec;
+  int sec;
+  bool hidden;
 } Button;
 
 #endif

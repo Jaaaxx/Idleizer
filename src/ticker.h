@@ -12,7 +12,7 @@ typedef struct {
   int displayTick;
   void (*handler)(); 
   void* ctx;
-  Section* sec;
+  int sec;
   bool hidden;
 } Ticker;
 #endif
