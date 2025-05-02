@@ -234,7 +234,6 @@ int main(void) {
   setupGameBuilding(&gs, "Silver Miner", 0.08, 5, gs.currencies->gold, gs.currencies->silver);
   setupGameBuilding(&gs, "Silver Farm", 1.2, 50, gs.currencies->gold, gs.currencies->silver);
   setupGameBuilding(&gs, "Gold Farm", 1.2, 50, gs.currencies->silver, gs.currencies->gold);
-  updateFlavorTextLabel(&gs);
 
   runGame(gs.core, game_width, game_height, "Mine Hunter");
   destroyGameState(&gs);
