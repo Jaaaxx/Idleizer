@@ -24,6 +24,6 @@
 
 // Core loop and lifecycle
 void runGame(Core* core, int game_width, int game_height, char* title);
-void destroyCore(Core* core);
+void freeAll(Core* core);
 
 #endif

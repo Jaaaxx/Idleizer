@@ -9,22 +9,22 @@
 #include "button.h"
 #include "label.h"
 
-typedef struct BuildingPositionVec {
+typedef struct BPosVec {
   VrVec pos;
   int sec;
-} BuildingPositionVec;
+} BPosVec;
 
-typedef struct BuildingPositionRec {
+typedef struct BPosRec {
   VrRec pos;
   int sec;
-} BuildingPositionRec;
+} BPosRec;
 
 typedef struct BuildingPositions {
-  BuildingPositionVec* ticker;
-  BuildingPositionVec* amountLabel;
-  BuildingPositionVec* cpsLabel;
-  BuildingPositionRec* button;
-  BuildingPositionRec* section;
+  BPosVec ticker;
+  BPosVec amountLabel;
+  BPosVec cpsLabel;
+  BPosRec button;
+  BPosRec section;
 } BuildingPositions;
 
 typedef struct BuildingLabels {
@@ -41,9 +41,9 @@ typedef struct BuildingButtons {
 } BuildingButtons;
 
 typedef struct BuildingTexts {
-  TextBuffer amount;
-  TextBuffer cps;
-  TextBuffer button;
+  TextBuffer* amount;
+  TextBuffer* cps;
+  TextBuffer* button;
 } BuildingTexts;
 
 typedef struct BuildingVals {
@@ -55,21 +55,23 @@ typedef struct BuildingVals {
 typedef struct Building {
   Core* core;
   char* name;
-  BuildingVals* bv;
+  BuildingVals vals;
   int bCurr;
   int gCurr;
-  BuildingLabels* labels;
-  BuildingTickers* tickers;
-  BuildingTexts* texts;
-  BuildingButtons* buttons;
+  BuildingLabels labels;
+  BuildingTickers tickers;
+  BuildingTexts texts;
+  BuildingButtons buttons;
+  BuildingPositions positions;
   int displaySect;
   // Any extra information to pass in about the game state
   void* data;
+  // For freeing memory allocated
+  void* internal;
 } Building;
 
+void freeAllBuildings(Core* core);
 VrVec calcBuildingOffsetPos(int buildings_size, int startX, int startY, int yOffset);
-int setupBuilding(Core* core, char* name, double cps, double cost, 
-                          int bCurr, int gCurr, BuildingPositions bps, void* gameData);
- 
-
+int addBuilding(Core* core, Building building);
+Building newBuilding(Core* core);
 #endif

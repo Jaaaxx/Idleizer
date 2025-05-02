@@ -2,122 +2,185 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+typedef struct BuildingCtx {
+  int idx;
+  Core* core;
+} BuildingCtx;
+
+
 // Helper method for calculating vertically placed building rows
 VrVec calcBuildingOffsetPos(int buildings_size, int startX, int startY, int yOffset) {
   VrVec ret = { startX, buildings_size * startY + yOffset };
   return ret; 
 }
 
+static void freeBuilding(Building* b) {
+  if (b->texts.amount) {
+    free(b->texts.amount);
+  }
+  if (b->texts.cps) {
+    free(b->texts.cps);
+  }
+  if (b->texts.button) {
+    free(b->texts.button);
+  }
+  if (b->internal) {
+    free(b->internal);
+  }
+}
+
+void freeAllBuildings(Core* core) {
+  for (int i = 0; i < core->buildings_size; ++i) {
+    freeBuilding(&core->buildings[i]);
+  }
+  free(core->buildings);
+  core->buildings = NULL;
+  core->buildings_size = 0;
+}
+
+
 static void defBuildTicker(void* context) {
-  Building* ctx = (Building*) context;
+  BuildingCtx* ctx = (BuildingCtx*) context;
+  Building* b = &(ctx->core->buildings[ctx->idx]);
   Currency* currs = ctx->core->currencies;
-  currs[ctx->gCurr].amount += ((double) ctx->bv->amount) * ctx->bv->cps / 10.0;
+  currs[b->gCurr].amount += ((double) b->vals.amount) * b->vals.cps / 10.0;
 }
 
 static void defBuildingUpdateLabels(Building* ctx) {
   Currency* currs = ctx->core->currencies;
-  if (&(ctx->texts->amount) != NULL) {
-    setTextBuffer(&(ctx->texts->amount), "%s: %d", ctx->name, ctx->bv->amount);
-  }
-  if (&(ctx->texts->cps) != NULL) {
-    setTextBuffer(&(ctx->texts->cps), "Per Second: %.1f %s", ctx->bv->amount*ctx->bv->cps,
-                  currs[ctx->gCurr].name);
-  }
-  if (&(ctx->texts->button) != NULL) {
-    setTextBuffer(&(ctx->texts->button), "Buy %s\n Costs %.1f %s", ctx->name,ctx->bv->cost,
-                  currs[ctx->bCurr].name);
-  }
+  setTextBuffer(ctx->texts.amount, "%s: %d", ctx->name, ctx->vals.amount);
+  setTextBuffer(ctx->texts.cps, "Per Second: %.1f %s", ctx->vals.amount*ctx->vals.cps,
+                currs[ctx->gCurr].name);
+  setTextBuffer(ctx->texts.button, "Buy %s\n Costs %.1f %s", ctx->name,ctx->vals.cost,
+                currs[ctx->bCurr].name); 
 }
 
 static void defBuildButton(void* context) {
-  Building* ctx = (Building*) context;
-  Currency* currs = ctx->core->currencies;
-  if (currs[ctx->bCurr].amount >= ctx->bv->cost) {
-    Core* core = ctx->core;
-    currs[ctx->bCurr].amount -= ctx->bv->cost;
-    ctx->bv->amount++;
-    ctx->bv->cost *= 1.15;
-    core->labels[ctx->labels->amountLabel].hidden = false;
-    core->labels[ctx->labels->cpsLabel].hidden = false;
-    core->tickers[ctx->tickers->mTicker].hidden = false;
-    core->sections[ctx->displaySect].hidden = false;
-    defBuildingUpdateLabels(ctx);
+  BuildingCtx* ctx = (BuildingCtx*) context;
+  Core* core = ctx->core;
+  Building* b = &(core->buildings[ctx->idx]);
+  Currency* currs = core->currencies;
+  if (currs[b->bCurr].amount >= b->vals.cost) {
+    currs[b->bCurr].amount -= b->vals.cost;
+    b->vals.amount++;
+    b->vals.cost *= 1.15;
+    core->labels[b->labels.amountLabel].hidden = false;
+    core->labels[b->labels.cpsLabel].hidden = false;
+    core->tickers[b->tickers.mTicker].hidden = false;
+    core->sections[b->displaySect].hidden = false;
+    defBuildingUpdateLabels(b);
   }
 }
 
+static void setDefaultBuilding(Building building, Building* ptr) {
+  ptr->core = building.core;
+  ptr->name = building.name ? building.name : "default_name";
+  ptr->vals = building.vals;
+  ptr->bCurr = building.bCurr;
+  ptr->gCurr = building.gCurr;
+  ptr->labels = building.labels;
+  ptr->tickers = building.tickers;
+  ptr->texts = building.texts;
+  ptr->texts.amount = malloc(sizeof(TextBuffer));
+  ptr->texts.cps = malloc(sizeof(TextBuffer));
+  ptr->texts.button = malloc(sizeof(TextBuffer));
+  ptr->buttons = building.buttons;
+  ptr->positions = building.positions;
+  ptr->displaySect = building.displaySect;
+  ptr->data = building.data;
+}
 
-int setupBuilding(Core* core, char* name, double cps, double cost, 
-                          int bCurr, int gCurr, BuildingPositions bps, void* gameData) {
-  BuildingVals* bv = malloc(sizeof(BuildingVals));
-  bv->amount = 0;
-  bv->cps = cps;
-  bv->cost = cost;
+Building newBuilding(Core* core) {
+  BuildingVals vals = {0};
 
-  BuildingLabels* bl = malloc(sizeof(BuildingLabels));
-  BuildingTickers* btickers = malloc(sizeof(BuildingTickers));
-  BuildingButtons* bbuttons = malloc(sizeof(BuildingButtons));
+  BuildingLabels labels = {0};
+  BuildingTickers tickers = {0};
+  BuildingTexts texts = {0};
+  BuildingButtons buttons = {0};
+  BuildingPositions positions = {
+    .ticker = { {0}, -2 },
+    .amountLabel = { {0}, -2},
+    .cpsLabel = { {0}, -2},
+    .button = { {0}, -2},
+    .section = { {0}, -2}
+  };
 
-  Building* ctx = malloc(sizeof(Building));
-  ctx->core = core;
-  ctx->name = name;
-  ctx->bv = bv;
-  ctx->bCurr = bCurr;
-  ctx->gCurr = gCurr;
-  ctx->labels = bl;
-  ctx->tickers = btickers;
-  ctx->buttons = bbuttons;
-  ctx->data = gameData;
+  Building building = {
+    .core = core,
+    .vals = vals,
+    .labels = labels,
+    .texts = texts,
+    .tickers = tickers,
+    .buttons = buttons,
+    .positions = positions,
+    .displaySect = -1,
+  };
+
+  return building;
+}
+
+
+int addBuilding(Core* core, Building building) {
+  if (core->buildings == NULL) {
+    core->buildings_size = 0;
+  }
+
+  core->buildings = realloc(core->buildings, sizeof(Building) * (core->buildings_size + 1));
+  Building* bld = &core->buildings[core->buildings_size];
+  BuildingPositions bps = building.positions;
   
-  Section* secs = core->sections;
+  setDefaultBuilding(building, bld);
+  bld->core = core;
 
+  BuildingCtx* ctx = malloc(sizeof(BuildingCtx));
+  bld->internal = ctx;
+  ctx->core = core;
+  ctx->idx = core->buildings_size;
+  
   // Default Building Sections
-  if (bps.section != NULL) {
-    ctx->displaySect = addSection(core, (Section) { .rec = bps.section->pos,
+  if (bps.section.sec != -2) {
+    bld->displaySect = addSection(core, (Section) { .rec = bps.section.pos,
                                                     .bg = GRAY,
                                                     .hidden = true,
-                                                    .parent = bps.section->sec });
+                                                    .parent = bps.section.sec });
   }
 
   // Default Building Tickers
-  if (bps.ticker != NULL) {
-     ctx->tickers->mTicker = addTicker(core, (Ticker) { .name = name,
-                                                        .pos = bps.ticker->pos,
-                                                        .frequency = 6,
-                                                        .handler = defBuildTicker,
-                                                        .ctx = ctx,
-                                                        .hidden = true,
-                                                        .sec = bps.ticker->sec });
-  }
-  // Default Building Labels
-  ctx->texts = malloc(sizeof(BuildingTexts));
-
-  if (bps.amountLabel != NULL) {
-    ctx->labels->amountLabel = addLabel(core, (Label) { .text = ctx->texts->amount.text,
-                                                        .pos = bps.amountLabel->pos, 
-                                                        .color = BLACK,
-                                                        .hidden = true,
-                                                        .sec = bps.amountLabel->sec });
+  if (bps.ticker.sec != -2) {
+     bld->tickers.mTicker = addTicker(core, (Ticker) { .name = bld->name,
+                                                       .pos = bps.ticker.pos,
+                                                       .frequency = 6,
+                                                       .handler = defBuildTicker,
+                                                       .ctx = ctx,
+                                                       .hidden = true,
+                                                       .sec = bps.ticker.sec });
   }
 
-  if (bps.cpsLabel != NULL) {
-    ctx->labels->cpsLabel = addLabel(core, (Label) { .text = ctx->texts->cps.text,
-                                                     .pos = bps.cpsLabel->pos,
-                                                     .color = BLACK,
-                                                     .hidden = true,
-                                                     .sec = bps.cpsLabel->sec });
+  if (bps.amountLabel.sec != -2) {
+    bld->labels.amountLabel = addLabel(core, (Label) { .text = bld->texts.amount->text,
+                                                       .pos = bps.amountLabel.pos, 
+                                                       .color = BLACK,
+                                                       .hidden = true,
+                                                       .sec = bps.amountLabel.sec });
+  }
+
+  if (bps.cpsLabel.sec != -2) {
+    bld->labels.cpsLabel = addLabel(core, (Label) { .text = bld->texts.cps->text,
+                                                    .pos = bps.cpsLabel.pos,
+                                                    .color = BLACK,
+                                                    .hidden = true,
+                                                    .sec = bps.cpsLabel.sec });
   }
   // Default Building Buttons
-  if (bps.button != NULL) {
-    ctx->buttons->buyButton = addButton(core, (Button) { .text = ctx->texts->button.text,
-                                                         .rec = bps.button->pos,
+  if (bps.button.sec != -2) {
+    bld->buttons.buyButton = addButton(core, (Button) { .text = bld->texts.button->text,
+                                                         .rec = bps.button.pos,
                                                          .handler = defBuildButton,
                                                          .ctx = ctx,
-                                                         .sec = bps.button->sec });
+                                                         .sec = bps.button.sec });
   }
   
-  defBuildingUpdateLabels(ctx);
-  core->buildings = realloc(core->buildings, sizeof(Building) * (core->buildings_size + 1));
-
+  defBuildingUpdateLabels(bld);
   return core->buildings_size++;
 }
 

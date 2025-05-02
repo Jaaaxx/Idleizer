@@ -8,4 +8,3 @@ void setTextBuffer(TextBuffer* buffer, const char* fmt, ...) {
   vsprintf(buffer->text, fmt, args);
   va_end(args);
 }
-

@@ -21,8 +21,8 @@ void runGame(Core* core, int game_width, int game_height, char* title) {
     drawSections(core);
     drawLabels(core);
     drawButtons(core);
-   
-    // handles the logic for and draws tickers
+  
+    // tick handlers
     handleTickers(core);
 	  handleCurrencies(core);
 
@@ -32,11 +32,17 @@ void runGame(Core* core, int game_width, int game_height, char* title) {
 	CloseWindow();
 }
 
-void destroyCore(Core* core) {
+static void destroyCore(Core* core) {
   free(core->sections);
   free(core->currencies);
   free(core->buttons);
   free(core->labels);
   free(core->tickers);
+}
+
+void freeAll(Core* core) {
+  freeAllBuildings(core);
+  destroyCore(core);
+  printf("Freed all engine memory\n");
 }
 

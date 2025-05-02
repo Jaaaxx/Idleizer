@@ -78,7 +78,6 @@ static void initSections(GameState* gs) {
   gameSects->displayArea  = idx + 2;
   gameSects->optionsArea  = idx + 3;
   gameSects->shopArea     = idx + 4;
-
   gs->sections = gameSects;
 }
 
@@ -133,7 +132,6 @@ static void initButtons(GameState* gs) {
 
 static void initLabels(GameState* gs) { 
   GameSections* secs = gs->sections;
-  int count = 1;
 
   Label flavorText = {
     .text = gs->texts.flavorText.text,
@@ -143,7 +141,7 @@ static void initLabels(GameState* gs) {
   };
 
   Label ls[] = { flavorText };
-  addLabels(gs->core, ls, count); 
+  addLabels(gs->core, ls, ARRAY_LEN(ls)); 
 }
 
 
@@ -162,7 +160,8 @@ static void initTickers(GameState* gs) {
 
 static void destroyGameState(GameState* gs) {
   free(gs->sections);
-  destroyCore(gs->core);
+  free(gs->currencies);
+  freeAll(gs->core);
 }
 
 static VrVec calcNextTickerPos(Core* core) {
@@ -188,15 +187,21 @@ static VrRec calcNextButtonPos(Core* core) {
 }
 
 static void setupGameBuilding(GameState* gs, char* name, double cps, double cost, int bCurr, int gCurr) {
-  BuildingPositions bpos = {0};
   Core* core = gs->core;
-  bpos.ticker = &(BuildingPositionVec){ calcNextTickerPos(core), gs->sections->displayArea };
-  bpos.amountLabel = &(BuildingPositionVec){ calcNextLabelPosAmount(core), gs->sections->displayArea };
-  bpos.cpsLabel = &(BuildingPositionVec){ calcNextLabelPosCPS(core), gs->sections->displayArea };
-  bpos.button = &(BuildingPositionRec){ calcNextButtonPos(core), gs->sections->shopArea };
-  bpos.section = &(BuildingPositionRec){ calcNextSectionPos(core), gs->sections->displayArea };
+ 
+  Building building = newBuilding(core);
+  building.vals.cps = cps;
+  building.vals.cost = cost;
+  building.name = name;
+  building.bCurr = bCurr;
+  building.gCurr = gCurr;
+  building.positions.ticker = (BPosVec){ calcNextTickerPos(core), gs->sections->displayArea };
+  building.positions.amountLabel = (BPosVec){ calcNextLabelPosAmount(core), gs->sections->displayArea };
+  building.positions.cpsLabel = (BPosVec){ calcNextLabelPosCPS(core), gs->sections->displayArea };
+  building.positions.button = (BPosRec){ calcNextButtonPos(core), gs->sections->shopArea };
+  building.positions.section = (BPosRec){ calcNextSectionPos(core), gs->sections->displayArea };
 
-  setupBuilding(core, name, cps, cost, bCurr, gCurr, bpos, gs);
+  addBuilding(core, building);
 }
 
 // Example game 1: Mine Hunter
@@ -213,6 +218,7 @@ int main(void) {
   setupGameBuilding(&gs, "Gold Miner", 0.08, 5, gs.currencies->silver, gs.currencies->gold);
   setupGameBuilding(&gs, "Silver Miner", 0.08, 5, gs.currencies->gold, gs.currencies->silver);
   setupGameBuilding(&gs, "Silver Farm", 1.2, 50, gs.currencies->gold, gs.currencies->silver);
+  setupGameBuilding(&gs, "Gold Farm", 1.2, 50, gs.currencies->silver, gs.currencies->gold);
   updateFlavorTextLabel(&gs);
 
   runGame(gs.core, game_width, game_height, "Mine Hunter");
