@@ -20,6 +20,8 @@ typedef struct {
 } Currency;
 
 int addCurrencies(Core* core, Currency* currencies, int count); 
-int addCurrency(Core* core, Currency currency); 
+int addCurrency(Core* core, Currency currency);
+// Function to clean up currency button contexts
+void freeCurrencyContexts();
 
 #endif

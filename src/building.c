@@ -17,15 +17,19 @@ VrVec calcBuildingOffsetPos(int buildings_size, int startX, int startY, int yOff
 static void freeBuilding(Building* b) {
   if (b->texts.amount) {
     free(b->texts.amount);
+    b->texts.amount = NULL;
   }
   if (b->texts.cps) {
     free(b->texts.cps);
+    b->texts.cps = NULL;
   }
   if (b->texts.button) {
     free(b->texts.button);
+    b->texts.button = NULL;
   }
   if (b->internal) {
     free(b->internal);
+    b->internal = NULL;
   }
 }
 

@@ -159,9 +159,19 @@ static void initTickers(GameState* gs) {
 }
 
 static void destroyGameState(GameState* gs) {
-  free(gs->sections);
-  free(gs->currencies);
   freeAll(gs->core);
+  
+  if (gs->sections) {
+    free(gs->sections);
+    gs->sections = NULL;
+  }
+  
+  if (gs->currencies) {
+    free(gs->currencies);
+    gs->currencies = NULL;
+  }
+
+  free(gs->core);
 }
 
 static VrVec calcNextTickerPos(Core* core) {
@@ -207,7 +217,12 @@ static void setupGameBuilding(GameState* gs, char* name, double cps, double cost
 // Example game 1: Mine Hunter
 int main(void) {
   GameState gs = {0};
-  gs.core = &(Core){0};
+
+  Core* core = calloc(1, sizeof(Core));
+  gs.core = core;
+  
+  // Initialize the flavor text buffer
+  setTextBuffer(&gs.texts.flavorText, "Welcome to Mine Hunter!");
 
   initSections(&gs);
   initCurrencies(&gs);
@@ -223,5 +238,6 @@ int main(void) {
 
   runGame(gs.core, game_width, game_height, "Mine Hunter");
   destroyGameState(&gs);
+  
   return 0;
 }

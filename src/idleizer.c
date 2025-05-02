@@ -1,4 +1,5 @@
 #include "idleizer.h"
+#include "currency.h"
 
 void runGame(Core* core, int game_width, int game_height, char* title) {
 	// Tell the window to use vsync and work on high DPI displays
@@ -42,6 +43,8 @@ static void destroyCore(Core* core) {
 
 void freeAll(Core* core) {
   freeAllBuildings(core);
+  cleanupGameResources();
+  freeCurrencyContexts();
   destroyCore(core);
   printf("Freed all engine memory\n");
 }

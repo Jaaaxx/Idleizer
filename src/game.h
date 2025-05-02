@@ -16,4 +16,5 @@ double calculateCPS(Core* core, int idx);
 void handleCurrencies(Core* core);
 void handleTickers(Core* core);
 void mouseButtonsHandler(Core* core, int* mouseBtn);
+void cleanupGameResources(void);
 #endif

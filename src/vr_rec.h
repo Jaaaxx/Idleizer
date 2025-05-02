@@ -13,6 +13,6 @@ typedef struct {
   float h;
 } VrRec;
 
-Rectangle* getSectionRec(Core* core, Section* sec);
-Rectangle* getTrueRec(Core* core, VrRec vr_rec, Section* sec);
+Rectangle getSectionRec(Core* core, Section* sec);
+Rectangle getTrueRec(Core* core, VrRec vr_rec, Section* sec);
 #endif

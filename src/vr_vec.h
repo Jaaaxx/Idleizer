@@ -10,5 +10,5 @@ typedef struct {
   float y;
 } VrVec;
 
-Vector2* getTrueVec(Core* core, VrVec vr_vec, Section* sec);
+Vector2 getTrueVec(Core* core, VrVec vr_vec, Section* sec);
 #endif
