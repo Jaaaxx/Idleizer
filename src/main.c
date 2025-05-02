@@ -102,12 +102,20 @@ static void initCurrencies(GameState* gs) {
   gs->currencies = gameCurrs; 
 }
 
+static void optionsHandler(void* ctx) {
+  GameState* gs = (GameState*) ctx;
+
+  printf("Hello Options\n");
+}
 
 static void initButtons(GameState* gs) {
   Button options = {
     .text = "Options",
     .rec = (VrRec) {0, 0, 14, 50},
-    .sec = gs->sections->optionsArea
+    .sec = gs->sections->optionsArea,
+    .handler = optionsHandler,
+    .ctx = gs,
+    .image = LoadImage("wabbit_alpha.png")
   };
   Button stats = {
     .text = "Stats",
@@ -159,8 +167,6 @@ static void initTickers(GameState* gs) {
 }
 
 static void destroyGameState(GameState* gs) {
-  freeAll(gs->core);
-  
   if (gs->sections) {
     free(gs->sections);
     gs->sections = NULL;
@@ -224,6 +230,8 @@ int main(void) {
   // Initialize the flavor text buffer
   setTextBuffer(&gs.texts.flavorText, "Welcome to Mine Hunter!");
 
+	SearchAndSetResourceDir("resources");
+ 
   initSections(&gs);
   initCurrencies(&gs);
   initButtons(&gs);

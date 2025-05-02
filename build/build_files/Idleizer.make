@@ -187,7 +187,6 @@ OBJECTS :=
 GENERATED += $(OBJDIR)/building.o
 GENERATED += $(OBJDIR)/button.o
 GENERATED += $(OBJDIR)/currency.o
-GENERATED += $(OBJDIR)/draw.o
 GENERATED += $(OBJDIR)/game.o
 GENERATED += $(OBJDIR)/idleizer.o
 GENERATED += $(OBJDIR)/label.o
@@ -195,12 +194,12 @@ GENERATED += $(OBJDIR)/main.o
 GENERATED += $(OBJDIR)/section.o
 GENERATED += $(OBJDIR)/text_buffer.o
 GENERATED += $(OBJDIR)/ticker.o
+GENERATED += $(OBJDIR)/util.o
 GENERATED += $(OBJDIR)/vr_rec.o
 GENERATED += $(OBJDIR)/vr_vec.o
 OBJECTS += $(OBJDIR)/building.o
 OBJECTS += $(OBJDIR)/button.o
 OBJECTS += $(OBJDIR)/currency.o
-OBJECTS += $(OBJDIR)/draw.o
 OBJECTS += $(OBJDIR)/game.o
 OBJECTS += $(OBJDIR)/idleizer.o
 OBJECTS += $(OBJDIR)/label.o
@@ -208,6 +207,7 @@ OBJECTS += $(OBJDIR)/main.o
 OBJECTS += $(OBJDIR)/section.o
 OBJECTS += $(OBJDIR)/text_buffer.o
 OBJECTS += $(OBJDIR)/ticker.o
+OBJECTS += $(OBJDIR)/util.o
 OBJECTS += $(OBJDIR)/vr_rec.o
 OBJECTS += $(OBJDIR)/vr_vec.o
 
@@ -282,9 +282,6 @@ $(OBJDIR)/button.o: ../../src/button.c
 $(OBJDIR)/currency.o: ../../src/currency.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/draw.o: ../../src/draw.c
-	@echo "$(notdir $<)"
-	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/game.o: ../../src/game.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -304,6 +301,9 @@ $(OBJDIR)/text_buffer.o: ../../src/text_buffer.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ticker.o: ../../src/ticker.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/util.o: ../../src/util.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/vr_rec.o: ../../src/vr_rec.c

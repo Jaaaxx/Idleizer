@@ -41,7 +41,7 @@ static void setDefaultCurrency(Currency currency, Currency* ptr) {
   ptr->name = currency.name ? currency.name : "default_name";
   ptr->amount = currency.amount;
   ptr->pos = currency.pos;
-  ptr->buttonRec = currency.buttonRec.x != 0 || currency.buttonRec.y != 0 
+  ptr->buttonRec = currency.buttonRec.x != 0 || currency.buttonRec.y != 0 ||
                    currency.buttonRec.w != 0 || currency.buttonRec.h != 0 ? currency.buttonRec :
                                                                     (VrRec) { ptr->pos.x,
                                                                               ptr->pos.y + 20,

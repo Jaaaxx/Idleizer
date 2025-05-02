@@ -40,8 +40,8 @@ obj/x64/Debug/Idleizer/main.o: ../../src/main.c \
  /usr/include/bits/types/cookie_io_functions_t.h \
  /usr/include/bits/stdio_lim.h ../../src/currency.h ../../src/vr_vec.h \
  ../../src/section.h ../../src/vr_rec.h ../../src/button.h \
- ../../src/game.h ../../src/ticker.h ../../src/draw.h ../../src/label.h \
- ../../src/core.h ../../src/text_buffer.h ../../src/building.h
+ ../../src/game.h ../../src/ticker.h ../../src/label.h ../../src/core.h \
+ ../../src/text_buffer.h ../../src/building.h
 /usr/include/stdc-predef.h:
 ../../src/idleizer.h:
 ../external/raylib-master/src/raylib.h:
@@ -116,7 +116,6 @@ obj/x64/Debug/Idleizer/main.o: ../../src/main.c \
 ../../src/button.h:
 ../../src/game.h:
 ../../src/ticker.h:
-../../src/draw.h:
 ../../src/label.h:
 ../../src/core.h:
 ../../src/text_buffer.h:

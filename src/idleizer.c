@@ -1,5 +1,6 @@
 #include "idleizer.h"
 #include "currency.h"
+#include "button.h"
 
 void runGame(Core* core, int game_width, int game_height, char* title) {
 	// Tell the window to use vsync and work on high DPI displays
@@ -8,7 +9,6 @@ void runGame(Core* core, int game_width, int game_height, char* title) {
 
 	// Create the window and OpenGL context
 	InitWindow(game_width, game_height, title);
-	SearchAndSetResourceDir("resources");
 
   int mouseBtn = -1;
   // game loop
@@ -29,7 +29,8 @@ void runGame(Core* core, int game_width, int game_height, char* title) {
 
 		EndDrawing();
 	}
-  
+
+  freeAll(core);
 	CloseWindow();
 }
 
@@ -42,6 +43,8 @@ static void destroyCore(Core* core) {
 }
 
 void freeAll(Core* core) {
+  unloadButtonResources(core);
+
   freeAllBuildings(core);
   cleanupGameResources();
   freeCurrencyContexts();

@@ -30,3 +30,10 @@ double calculateCPS(Core* core, int idx) {
   prevCurrs[idx] = core->currencies[idx].amount;
   return ret; 
 }
+
+void DrawTextureCentered(Texture2D texture, Rectangle container) {
+    float destX = container.x + (container.width  - texture.width)  / 2.0f;
+    float destY = container.y + (container.height - texture.height) / 2.0f;
+
+    DrawTexture(texture, (int)destX, (int)destY, WHITE);
+}

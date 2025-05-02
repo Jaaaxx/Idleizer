@@ -16,10 +16,13 @@ typedef struct {
   void* ctx;
   int sec;
   bool hidden;
+  Image image;
+  Texture _texture;
 } Button;
 
 void drawButtons(Core* core);
 int addButtons(Core* core, Button* buttons, int count); 
-int addButton(Core* core, Button button); 
+int addButton(Core* core, Button button);
+void unloadButtonResources(Core* core);
 
 #endif
