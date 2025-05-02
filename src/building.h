@@ -36,6 +36,10 @@ typedef struct BuildingTickers {
   int mTicker;
 } BuildingTickers;
 
+typedef struct BuildingButtons {
+  int buyButton;
+} BuildingButtons;
+
 typedef struct BuildingTexts {
   TextBuffer amount;
   TextBuffer cps;
@@ -48,7 +52,7 @@ typedef struct BuildingVals {
   double cost;
 } BuildingVals;
 
-typedef struct Building{
+typedef struct Building {
   Core* core;
   char* name;
   BuildingVals* bv;
@@ -57,6 +61,7 @@ typedef struct Building{
   BuildingLabels* labels;
   BuildingTickers* tickers;
   BuildingTexts* texts;
+  BuildingButtons* buttons;
   int displaySect;
   // Any extra information to pass in about the game state
   void* data;

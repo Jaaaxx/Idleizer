@@ -12,52 +12,55 @@ static void defClickHandler(void* context) {
   curr->amount += curr->perClick;
 }
 
-void addCurrencies(Core* core, const char** names, const VrVec* positions, int* parents, bool* hiddens, int count) {
-  if (&core->currencies == NULL) {
-    core->currencies_size = 0;
-  }
-  Currency* currencies = realloc(core->currencies, sizeof(Currency) * (core->currencies_size + count));
-  for (int i = 0; i < count; i++) {
-    currencies[i+core->currencies_size].name = names[i];
-    currencies[i+core->currencies_size].amount = 0.0;
-    currencies[i+core->currencies_size].pos = positions[i];
-    currencies[i+core->currencies_size].sec = parents[i];
-    currencies[i+core->currencies_size].hidden = hiddens[i];
-    currencies[i+core->currencies_size].perClick = 1;
-
-    VrVec pos = positions[i];
-    VrRec buttonPos = { pos.x, pos.y + 20, 20, 10 };
-    CurrClickCtx* ctx = malloc(sizeof(CurrClickCtx));
-    ctx->core = core;
-    ctx->currency = i;
-
-    addButton(core, names[i], buttonPos, defClickHandler, ctx, false, parents[i]);
-  }
-  
-  core->currencies = currencies;
-  core->currencies_size += count;
+static void setDefaultCurrency(Currency currency, Currency* ptr) {
+  ptr->name = currency.name ? currency.name : "default_name";
+  ptr->amount = currency.amount;
+  ptr->pos = currency.pos;
+  ptr->sec = currency.sec >= 0 ? currency.sec : -1;
+  ptr->hidden = currency.hidden;
+  ptr->perClick = currency.perClick > 0 ? currency.perClick : 1;
 }
 
-int addCurrency(Core* core, const char* name, const VrVec position, bool hidden, int parent) {
-  if (&core->currencies == NULL) {
-    core->currencies_size = 0;
-  }
-  core->currencies = realloc(core->currencies, sizeof(Currency) * (core->currencies_size + 1));
-
-  Currency* c = &core->currencies[core->currencies_size];
-  c->name = name;
-  c->amount = 0.0;
-  c->pos = position;
-  c->sec = parent;
-  c->hidden = hidden;
-  c->perClick = 1;
-
-  VrRec buttonPos = { position.x, position.y + 20, 20, 10 };
+static void addCurrButton(Core* core, int idx) {
   CurrClickCtx* ctx = malloc(sizeof(CurrClickCtx));
   ctx->core = core;
-  ctx->currency = core->currencies_size + 1;
+  ctx->currency = idx;
 
-  addButton(core, name, buttonPos, defClickHandler, ctx, false, parent);
+  Currency curr = core->currencies[idx];
+  VrVec pos = curr.pos;
+  VrRec buttonPos = { pos.x, pos.y + 20, 20, 10 };
+
+  addButton(core, (Button) { .text = curr.name,
+                             .rec = buttonPos,
+                             .handler = defClickHandler,
+                             .ctx = ctx,
+                             .sec = curr.sec });
+}
+
+int addCurrencies(Core* core, Currency* currencies, int count) {
+  if (core->currencies == NULL) {
+    core->currencies_size = 0;
+  }
+
+  core->currencies = realloc(core->currencies, sizeof(Currency) * (core->currencies_size + count));
+  for (int i = 0; i < count; i++) {
+    setDefaultCurrency(currencies[i], &core->currencies[i+core->currencies_size]);
+    addCurrButton(core, i+core->currencies_size);
+   }
+ 
+  int index = core->currencies_size;
+  core->currencies_size += count;
+  return index;
+}
+
+int addCurrency(Core* core, Currency currency) {
+  if (core->currencies == NULL) {
+    core->currencies_size = 0;
+  }
+
+  core->currencies = realloc(core->currencies, sizeof(Currency) * (core->currencies_size + 1));
+  setDefaultCurrency(currency, &core->currencies[core->currencies_size]);
+  addCurrButton(core, core->currencies_size);
 
   return core->currencies_size++;
 }

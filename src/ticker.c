@@ -1,45 +1,41 @@
 #include "ticker.h"
 #include "core.h"
 
-void addTickers(Core* core, char** texts, VrVec* secs, int* frequencies, void (**handlers)(void *), 
-                   void** ctxs, int* parents, bool* hiddens, int count) {
-  if (&core->tickers == NULL) {
-    core->tickers_size = 0;
-  }
-  Ticker* tickers = realloc(core->tickers, sizeof(Ticker) * (core->tickers_size + count));
-  for (int i = 0; i < count; i++) {
-    tickers[i+core->tickers_size].name = texts[i];
-    tickers[i+core->tickers_size].pos = secs[i];
-    tickers[i+core->tickers_size].frequency = frequencies[i];
-    tickers[i+core->tickers_size].tick = 0;
-    tickers[i+core->tickers_size].displayTick = 0;
-    tickers[i+core->tickers_size].handler = handlers[i];
-    tickers[i+core->tickers_size].ctx = ctxs[i];
-    tickers[i+core->tickers_size].sec = parents[i];
-    tickers[i+core->tickers_size].hidden = hiddens[i];
-  }
-  core->tickers = tickers;
-  core->tickers_size += count;
+static void setDefaultTicker(Ticker ticker, Ticker* ptr) {
+  ptr->name = ticker.name ? ticker.name : "default_name";
+  ptr->pos = ticker.pos;
+  ptr->frequency = ticker.frequency > 0 ? ticker.frequency : 10;
+  ptr->tick = ticker.tick;
+  ptr->displayTick = ticker.displayTick;
+  ptr->handler = ticker.handler ? ticker.handler : NULL;
+  ptr->ctx = ticker.ctx ? ticker.ctx : NULL;
+  ptr->sec = ticker.sec >= 0 ? ticker.sec : -1;
+  ptr->hidden = ticker.hidden;
 }
 
-int addTicker(Core* core, char* name, VrVec pos, int frequency, 
-                void (*handler)(void*), void* ctx, bool hidden, int sec) {
-  if (&core->tickers == NULL) {
+int addTickers(Core* core, Ticker* tickers, int count) {
+  if (core->tickers == NULL) {
+    core->tickers_size = 0;
+  }
+
+  core->tickers = realloc(core->tickers, sizeof(Ticker) * (core->tickers_size + count));
+  for (int i = 0; i < count; i++) {
+    setDefaultTicker(tickers[i], &core->tickers[i+core->tickers_size]);
+  }
+
+  int index = core->tickers_size;
+  core->tickers_size += count;
+  return index;
+}
+
+int addTicker(Core* core, Ticker ticker) {
+  if (core->tickers == NULL) {
     core->tickers_size = 0;
   }
 
   core->tickers = realloc(core->tickers, sizeof(Ticker) * (core->tickers_size + 1));
-  
-  Ticker* t = &core->tickers[core->tickers_size];
-  t->name = name;
-  t->pos = pos;
-  t->frequency = frequency;
-  t->tick = 0;
-  t->displayTick = 0;
-  t->handler = handler;
-  t->ctx = ctx;
-  t->sec = sec;
-  t->hidden = hidden;
+  setDefaultTicker(ticker, &core->tickers[core->tickers_size]);
 
   return core->tickers_size++;
 }
+

@@ -1,37 +1,37 @@
 #include "label.h"
 #include "core.h"
 
-void addLabels(Core* core, char** texts, VrVec* vecs, Color* colors,
-                  bool* hiddens, int* parents, int count) {
-  if (&core->labels == NULL) {
-    core->labels_size = 0;
-  }
-  Label* labels = realloc(core->labels, sizeof(Label) * (core->labels_size + count));
-  for (int i = 0; i < count; i++) {
-    labels[i+core->labels_size].text = texts[i];
-    labels[i+core->labels_size].pos = vecs[i];
-    labels[i+core->labels_size].fontSize = 20;
-    labels[i+core->labels_size].color = colors[i];
-    labels[i+core->labels_size].hidden = hiddens[i];
-    labels[i+core->labels_size].sec = parents[i];
-  }
-  core->labels = labels;
-  core->labels_size += count;
+static void setDefaultLabel(Label label, Label* ptr) {
+  ptr->text = label.text ? label.text : "default text";
+  ptr->pos = label.pos;
+  ptr->fontSize = label.fontSize > 0 ? label.fontSize : 20;
+  ptr->color = label.color;
+  ptr->hidden = label.hidden;
+  ptr->sec = label.sec >= 0 ? label.sec : -1;
 }
 
-int addLabel(Core* core, char* text, VrVec pos, Color color, bool hidden, int parent) {
-  if (&core->labels == NULL) {
+int addLabels(Core* core, Label* labels, int count) {
+  if (core->labels == NULL) {
     core->labels_size = 0;
   }
-  core->labels = realloc(core->labels, sizeof(Label) * (core->labels_size + 1));
 
-  Label* l = &core->labels[core->labels_size];
-  l->text = text;
-  l->pos = pos;
-  l->fontSize = 20;
-  l->color = color;
-  l->hidden = hidden;
-  l->sec = parent;
+  core->labels = realloc(core->labels, sizeof(Label) * (core->labels_size + count));
+  for (int i = 0; i < count; i++) {
+    setDefaultLabel(labels[i], &core->labels[i+core->labels_size]);
+  }
+
+  int index = core->labels_size;
+  core->labels_size += count;
+  return index;
+}
+
+int addLabel(Core* core, Label label) {
+  if (core->labels == NULL) {
+    core->labels_size = 0;
+  }
+
+  core->labels = realloc(core->labels, sizeof(Label) * (core->labels_size + 1));
+  setDefaultLabel(label, &core->labels[core->labels_size]);
 
   return core->labels_size++;
 }

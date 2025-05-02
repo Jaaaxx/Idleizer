@@ -55,6 +55,7 @@ int setupBuilding(Core* core, char* name, double cps, double cost,
 
   BuildingLabels* bl = malloc(sizeof(BuildingLabels));
   BuildingTickers* btickers = malloc(sizeof(BuildingTickers));
+  BuildingButtons* bbuttons = malloc(sizeof(BuildingButtons));
 
   Building* ctx = malloc(sizeof(Building));
   ctx->core = core;
@@ -64,36 +65,54 @@ int setupBuilding(Core* core, char* name, double cps, double cost,
   ctx->gCurr = gCurr;
   ctx->labels = bl;
   ctx->tickers = btickers;
+  ctx->buttons = bbuttons;
   ctx->data = gameData;
   
   Section* secs = core->sections;
 
   // Default Building Sections
   if (bps.section != NULL) {
-    ctx->displaySect = addSection(core, bps.section->pos, GRAY, true, bps.section->sec);
+    ctx->displaySect = addSection(core, (Section) { .rec = bps.section->pos,
+                                                    .bg = GRAY,
+                                                    .hidden = true,
+                                                    .parent = bps.section->sec });
   }
 
   // Default Building Tickers
   if (bps.ticker != NULL) {
-    ctx->tickers->mTicker = addTicker(core, name, bps.ticker->pos, 6,
-                                      defBuildTicker, ctx, true, bps.ticker->sec);
+     ctx->tickers->mTicker = addTicker(core, (Ticker) { .name = name,
+                                                        .pos = bps.ticker->pos,
+                                                        .frequency = 6,
+                                                        .handler = defBuildTicker,
+                                                        .ctx = ctx,
+                                                        .hidden = true,
+                                                        .sec = bps.ticker->sec });
   }
   // Default Building Labels
   ctx->texts = malloc(sizeof(BuildingTexts));
 
   if (bps.amountLabel != NULL) {
-    ctx->labels->amountLabel = addLabel(core, ctx->texts->amount.text, bps.amountLabel->pos, 
-                                        BLACK, true, bps.amountLabel->sec);
+    ctx->labels->amountLabel = addLabel(core, (Label) { .text = ctx->texts->amount.text,
+                                                        .pos = bps.amountLabel->pos, 
+                                                        .color = BLACK,
+                                                        .hidden = true,
+                                                        .sec = bps.amountLabel->sec });
   }
 
   if (bps.cpsLabel != NULL) {
-    ctx->labels->cpsLabel = addLabel(core, ctx->texts->cps.text, bps.cpsLabel->pos,
-                                     BLACK, true, bps.cpsLabel->sec);
+    ctx->labels->cpsLabel = addLabel(core, (Label) { .text = ctx->texts->cps.text,
+                                                     .pos = bps.cpsLabel->pos,
+                                                     .color = BLACK,
+                                                     .hidden = true,
+                                                     .sec = bps.cpsLabel->sec });
   }
   // Default Building Buttons
   if (bps.button != NULL) {
-    addButton(core, ctx->texts->button.text, bps.button->pos,
-              defBuildButton, ctx, false, bps.button->sec);
+    ctx->buttons->buyButton = addButton(core, (Button) { .text = ctx->texts->button.text,
+                                                         .rec = bps.button->pos,
+                                                         .handler = defBuildButton,
+                                                         .ctx = ctx,
+                                                         .sec = bps.button->sec });
   }
   
   defBuildingUpdateLabels(ctx);

@@ -184,18 +184,30 @@ endif
 GENERATED :=
 OBJECTS :=
 
+GENERATED += $(OBJDIR)/building.o
+GENERATED += $(OBJDIR)/button.o
+GENERATED += $(OBJDIR)/currency.o
 GENERATED += $(OBJDIR)/draw.o
 GENERATED += $(OBJDIR)/game.o
 GENERATED += $(OBJDIR)/idleizer.o
+GENERATED += $(OBJDIR)/label.o
 GENERATED += $(OBJDIR)/main.o
 GENERATED += $(OBJDIR)/section.o
+GENERATED += $(OBJDIR)/text_buffer.o
+GENERATED += $(OBJDIR)/ticker.o
 GENERATED += $(OBJDIR)/vr_rec.o
 GENERATED += $(OBJDIR)/vr_vec.o
+OBJECTS += $(OBJDIR)/building.o
+OBJECTS += $(OBJDIR)/button.o
+OBJECTS += $(OBJDIR)/currency.o
 OBJECTS += $(OBJDIR)/draw.o
 OBJECTS += $(OBJDIR)/game.o
 OBJECTS += $(OBJDIR)/idleizer.o
+OBJECTS += $(OBJDIR)/label.o
 OBJECTS += $(OBJDIR)/main.o
 OBJECTS += $(OBJDIR)/section.o
+OBJECTS += $(OBJDIR)/text_buffer.o
+OBJECTS += $(OBJDIR)/ticker.o
 OBJECTS += $(OBJDIR)/vr_rec.o
 OBJECTS += $(OBJDIR)/vr_vec.o
 
@@ -261,6 +273,15 @@ endif
 # File Rules
 # #############################################
 
+$(OBJDIR)/building.o: ../../src/building.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/button.o: ../../src/button.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/currency.o: ../../src/currency.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/draw.o: ../../src/draw.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -270,10 +291,19 @@ $(OBJDIR)/game.o: ../../src/game.c
 $(OBJDIR)/idleizer.o: ../../src/idleizer.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/label.o: ../../src/label.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/main.o: ../../src/main.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/section.o: ../../src/section.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/text_buffer.o: ../../src/text_buffer.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ticker.o: ../../src/ticker.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/vr_rec.o: ../../src/vr_rec.c

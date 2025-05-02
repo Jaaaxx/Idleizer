@@ -52,33 +52,38 @@ float getSecY(Core* core, Section* sec) {
   return (sec->rec.y / 100) * getSecHeight(core, &secs[sec->parent]) + getSecY(core, &secs[sec->parent]);
 }
 
-
-void addSections(Core* core, const VrRec* rects, const Color* colors, 
-                           const int* parent_indices, const bool* hiddens, int count) {
-  if (&core->sections == NULL) {
-    core->sections_size = 0;
-  }
-  core->sections = realloc(core->sections, sizeof(Section) * (core->sections_size + count));
-  for (int i = 0; i < count; i++) {
-    core->sections[i+core->sections_size].rec = rects[i];
-    core->sections[i+core->sections_size].bg = colors[i];
-    core->sections[i+core->sections_size].parent = parent_indices[i];
-    core->sections[i+core->sections_size].hidden = hiddens[i];
-  }
-  core->sections_size += count;
+// todo for this and all data types: improve defaults by giving users a createSection() function?
+// it would populate with sentinel values to determine what the user actually set and improve defaults
+// could be more trouble for the user though adding complexity per object created
+static void setDefaultSection(Section section, Section* ptr) {
+  ptr->rec = section.rec;
+  ptr->bg = section.bg;
+  ptr->parent = section.parent >= 0 ? section.parent : -1;
+  ptr->hidden = section.hidden;
 }
 
-int addSection(Core* core, const VrRec rect, const Color color, const bool hidden, int parent) {
-  if (&core->sections == NULL) {
+int addSections(Core* core, Section* sections, int count) {
+  if (core->sections == NULL) {
     core->sections_size = 0;
   }
-  core->sections = realloc(core->sections, sizeof(Section) * (core->sections_size + 1));
 
-  Section* s = &core->sections[core->sections_size];
-  s->rec = rect;
-  s->bg = color;
-  s->parent = parent;
-  s->hidden = hidden;
+  core->sections = realloc(core->sections, sizeof(Section) * (core->sections_size + count));
+  for (int i = 0; i < count; i++) {
+    setDefaultSection(sections[i], &core->sections[i+core->sections_size]);
+  }
+
+  int index = core->sections_size;
+  core->sections_size += count;
+  return index;
+}
+
+int addSection(Core* core, Section section) {
+  if (core->sections == NULL) {
+    core->sections_size = 0;
+  }
+
+  core->sections = realloc(core->sections, sizeof(Section) * (core->sections_size + 1));
+  setDefaultSection(section, &core->sections[core->sections_size]);
 
   return core->sections_size++;
 }

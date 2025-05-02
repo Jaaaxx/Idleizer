@@ -17,7 +17,7 @@ typedef struct {
 } Label;
 
 
-void addLabels(Core* core, char** texts, VrVec* vecs, Color* colors, bool* hiddens, int* parents, int count);
-int addLabel(Core* core, char* text, VrVec pos, Color color, bool hidden, int parent);
+int addLabels(Core* core, Label* labels, int count);
+int addLabel(Core* core, Label label);
 
 #endif

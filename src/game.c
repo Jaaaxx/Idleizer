@@ -70,7 +70,9 @@ void mouseButtonsHandler(Core* core, int* mouseBtn) {
     Button* b = &core->buttons[i];
     if (CheckCollisionPointRec(GetMousePosition(), *getTrueRec(core, b->rec, getSection(core, b->sec)))) {
       if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && *mouseBtn != 1) {
-        b->handler(b->ctx);
+        if (b->handler) {
+          b->handler(b->ctx);
+        }
         *mouseBtn = 1;
       } else if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         *mouseBtn = -1;

@@ -2,6 +2,7 @@
 
 #define game_width 1280
 #define game_height 800
+#define ARRAY_LEN(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 typedef struct {
   TextBuffer flavorText;
@@ -27,151 +28,106 @@ typedef struct GameState {
   GameTexts texts;
 } GameState;
 
-const char* flavorTexts[] = {
+const static char* flavorTexts[] = {
   "I am flavor text! Haha!",
   "Here at mine hunter, we love miners!",
   "Mining is our specialty!",
   "Who said anything about the price of \nsilver?",
   "Woop woop! Mining session!"
 };
-const int flavorTextsLen = 5;
+const static int flavorTextsLen = 5;
 
 static void updateFlavorTextLabel(void* ctx) {
   GameState* gs = (GameState*) ctx;
-
   setTextBuffer(&(gs->texts.flavorText), flavorTexts[GetRandomValue(0, flavorTextsLen-1)]);
 }
 
 static void initSections(GameState* gs) {
-  const int count = 5;
-
-  VrRec rects[] = {
-    { 0, 0, game_width, game_height },   // gameArea
-    { 0.0f, 0.0f, 30.0f, 100.0f }, // mainArea
-    { 30.0f, 10.0f, 45.0f, 90.0f }, // displayArea
-    { 30.0f, 0.0f, 45.0f, 10.0f }, // optionsArea
-    { 75.0f, 0.0f, 25.0f, 100.0f }  // shopArea
+  Section gameArea = {
+    .rec = {0, 0, game_width, game_height},
+    .bg = BLANK,
+    .parent = -1
+  };
+  Section mainArea = {
+    .rec = {0, 0, 30, 100},
+    .bg = YELLOW,
+    .parent = 0
+  };
+  Section displayArea = {
+    .rec = {30, 10, 45, 90},
+    .bg = BLUE,
+    .parent = 0
+  };
+  Section optionsArea = {
+    .rec = {30, 0, 45, 10},
+    .bg = PURPLE,
+    .parent = 0
+  };
+  Section shopArea = {
+    .rec = {75, 0, 25, 100},
+    .bg = GRAY,
+    .parent = 0
   };
 
-  Color colors[] = {
-    TRANSPARENT, // gameArea
-    YELLOW,      // mainArea
-    BLUE,        // displayArea
-    PURPLE,      // optionsArea
-    GRAY         // shopArea
-  };
-
-  bool hiddens[] = {
-    false,
-    false,
-    false,
-    false,
-    false
-  };
-
-  int parent_indices[] = {
-    -1, // gameArea has no parent
-     0, // mainArea → gameArea
-     0, // displayArea → gameArea
-     0, // optionsArea → displayArea
-     0  // shopArea → gameArea
-  };
-
-  addSections(gs->core, rects, colors, parent_indices, hiddens, count);
+  Section ss[] = { gameArea, mainArea, displayArea, optionsArea, shopArea };
+  int idx = addSections(gs->core, ss, ARRAY_LEN(ss));
 
   GameSections* gameSects = malloc(sizeof(GameSections));
-  gameSects->gameArea     = 0;
-  gameSects->mainArea     = 1;
-  gameSects->displayArea  = 2;
-  gameSects->optionsArea  = 3;
-  gameSects->shopArea     = 4;
+  gameSects->gameArea     = idx + 0;
+  gameSects->mainArea     = idx + 1;
+  gameSects->displayArea  = idx + 2;
+  gameSects->optionsArea  = idx + 3;
+  gameSects->shopArea     = idx + 4;
 
   gs->sections = gameSects;
 }
 
 static void initCurrencies(GameState* gs) {
-  GameSections* secs = gs->sections;
-
-  int count = 2;
-
-  const char* names[] = { 
-    "Gold",
-    "Silver" 
+  Currency gold = {
+    .name = "Gold",
+    .pos = (VrVec) {10, 10},
+    .sec = gs->sections->mainArea
+  };
+  Currency silver = {
+    .name = "Silver",
+    .pos = (VrVec) {60, 10},
+    .sec = gs->sections->mainArea
   };
 
-  VrVec positions[] = { 
-    {10, 10},
-    {60, 10} 
-  };
-
-  bool hiddens[] = {
-    false,
-    false
-  };
-
-  int parents[] = { 
-    secs->mainArea, 
-    secs->mainArea 
-  };
-
-  addCurrencies(gs->core, names, positions, parents, hiddens, count);
+  Currency cs[] = { gold, silver };
+  int idx = addCurrencies(gs->core, cs, ARRAY_LEN(cs));
   
   GameCurrencies* gameCurrs = malloc(sizeof(GameCurrencies));
-  gameCurrs->gold   = 0;
-  gameCurrs->silver = 1;
-
+  gameCurrs->gold   = idx + 0;
+  gameCurrs->silver = idx + 1;
   gs->currencies = gameCurrs; 
 }
 
 
 static void initButtons(GameState* gs) {
-  GameSections* secs = gs->sections;
-
-  const int count = 4;
-  
-  const char* texts[] = { 
-    "Options", 
-    "Stats", 
-    "Info", 
-    "Legacy"
+  Button options = {
+    .text = "Options",
+    .rec = (VrRec) {0, 0, 14, 50},
+    .sec = gs->sections->optionsArea
+  };
+  Button stats = {
+    .text = "Stats",
+    .rec = (VrRec) {0, 50, 14, 50},
+    .sec = gs->sections->optionsArea
+  };
+  Button info = {
+    .text = "Info",
+    .rec = (VrRec) {86, 0, 14, 50},
+    .sec = gs->sections->optionsArea
+  };
+  Button legacy = {
+    .text = "Legacy",
+    .rec = (VrRec) {86, 50, 14, 50},
+    .sec = gs->sections->optionsArea
   };
 
-  VrRec positions[] = { 
-    {0, 0, 14, 50},
-    {0, 50, 14, 50}, 
-    {86, 0, 14, 50}, 
-    {86, 50, 14, 50} 
-  };
-
-  void (*handlers[])(void*) = { 
-    updateFlavorTextLabel, 
-    updateFlavorTextLabel,
-    updateFlavorTextLabel, 
-    updateFlavorTextLabel
-  };
-
-  void* ctxs[] = {
-    gs,
-    gs,
-    gs,
-    gs
-  };
-
-  bool hiddens[] = {
-    false,
-    false,
-    false,
-    false
-  };
-  
-  int parents[] = { 
-    secs->optionsArea,
-    secs->optionsArea, 
-    secs->optionsArea, 
-    secs->optionsArea
-  };
-
-  addButtons(gs->core, texts, positions, handlers, ctxs, parents, hiddens, count);
+  Button bs[] = { options, stats, info, legacy };
+  addButtons(gs->core, bs, ARRAY_LEN(bs));
 }
 
 
@@ -179,63 +135,29 @@ static void initLabels(GameState* gs) {
   GameSections* secs = gs->sections;
   int count = 1;
 
-  char* texts[] = {
-    gs->texts.flavorText.text
+  Label flavorText = {
+    .text = gs->texts.flavorText.text,
+    .color = BLACK,
+    .pos = {15, 5},
+    .sec = secs->optionsArea
   };
 
-  VrVec positions[] = {
-    {15, 5}
-  };
-
-  Color colors[] = {
-    BLACK
-  };
-
-  bool hiddens[] = {
-    false
-  };
-
-  int parents[] = {
-    secs->optionsArea
-  };
-
-  addLabels(gs->core, texts, positions, colors, hiddens, parents, count);
+  Label ls[] = { flavorText };
+  addLabels(gs->core, ls, count); 
 }
 
 
 static void initTickers(GameState* gs) {
-  GameSections* secs = gs->sections;
-  int count = 1;
-
-  char* texts[] = {
-    "Updating Flavor Text",
+  Ticker flavorTextUpdate = {
+    .name = "Updating Flavor Text",
+    .frequency = 1200,
+    .handler = updateFlavorTextLabel,
+    .ctx = gs,
+    .hidden = true
   };
 
-  int frequencies[] = {
-    1200,
-  };
-
-  VrVec positions[] = {
-    {0, 0},
-  };
-
-  void (*handlers[])(void*) = {
-    updateFlavorTextLabel,
-  };
-
-  void* ctxs[] = {
-    gs,
-  };
-
-  int parents[] = {
-    secs->gameArea,
-  };
-  
-  bool hiddens[] = {
-    true,
-  };
-
-  addTickers(gs->core, texts, positions, frequencies, handlers, ctxs, parents, hiddens, count);
+  Ticker ts[] = { flavorTextUpdate };
+  addTickers(gs->core, ts, ARRAY_LEN(ts)); 
 }
 
 static void destroyGameState(GameState* gs) {
@@ -265,7 +187,7 @@ static VrRec calcNextButtonPos(Core* core) {
   return ret;
 }
 
-void setupGameBuilding(GameState* gs, char* name, double cps, double cost, int bCurr, int gCurr) {
+static void setupGameBuilding(GameState* gs, char* name, double cps, double cost, int bCurr, int gCurr) {
   BuildingPositions bpos = {0};
   Core* core = gs->core;
   bpos.ticker = &(BuildingPositionVec){ calcNextTickerPos(core), gs->sections->displayArea };

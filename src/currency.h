@@ -19,7 +19,7 @@ typedef struct {
   double perClick;
 } Currency;
 
-void addCurrencies(Core* core, const char** names, const VrVec* positions, int* parents, bool* hiddens, int count);
-int addCurrency(Core* core, const char* name, const VrVec position, bool hidden, int parent);
+int addCurrencies(Core* core, Currency* currencies, int count); 
+int addCurrency(Core* core, Currency currency); 
 
 #endif

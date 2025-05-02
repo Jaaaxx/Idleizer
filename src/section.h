@@ -18,7 +18,7 @@ float getSecX(Core* core, Section* sec);
 float getSecHeight(Core* core, Section* sec);
 float getSecY(Core* core, Section* sec);
 
-void addSections(Core* core, const VrRec* rects, const Color* colors, const int* parent_indices, const bool* hiddens, int count);
-int addSection(Core* core, const VrRec rect, const Color color, const bool hidden, int parent);
+int addSections(Core* core, Section* sections, int count);
+int addSection(Core* core, Section section); 
 
 #endif

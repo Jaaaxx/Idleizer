@@ -9,8 +9,6 @@
 #include "vr_rec.h"
 #include "vr_vec.h"
 
-#define TRANSPARENT CLITERAL(Color){ 255, 255, 255, 0 }
-
 void drawSections(Core* core);
 void drawButtons(Core* core);
 void drawCurrency(Core* core, Currency* c);
