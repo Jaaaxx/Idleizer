@@ -9,5 +9,4 @@
 #include "core.h"
 
 void mouseButtonsHandler(Core* core, int* mouseBtn);
-void cleanupGameResources(void);
 #endif

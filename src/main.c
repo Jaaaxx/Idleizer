@@ -51,7 +51,8 @@ static void initSections(GameState* gs) {
   Section mainArea = {
     .rec = {0, 0, 30, 100},
     .bg = YELLOW,
-    .parent = 0
+    .parent = 0,
+    .hidden = true
   };
   Section displayArea = {
     .rec = {30, 10, 45, 90},
@@ -105,7 +106,19 @@ static void initCurrencies(GameState* gs) {
 static void optionsHandler(void* ctx) {
   GameState* gs = (GameState*) ctx;
 
-  printf("Hello Options\n");
+  toggleSectionHide(gs->core, gs->sections->mainArea);
+}
+
+static void infoHandler(void* ctx) {
+  GameState* gs = (GameState*) ctx;
+
+  toggleSectionHide(gs->core, gs->sections->shopArea);
+}
+
+static void statsHandler(void* ctx) {
+  GameState* gs = (GameState*) ctx;
+
+  toggleSectionHide(gs->core, gs->sections->displayArea);
 }
 
 static void initButtons(GameState* gs) {
@@ -120,12 +133,17 @@ static void initButtons(GameState* gs) {
   Button stats = {
     .text = "Stats",
     .rec = (VrRec) {0, 50, 14, 50},
-    .sec = gs->sections->optionsArea
+    .sec = gs->sections->optionsArea,
+    .handler = statsHandler,
+    .ctx = gs
   };
   Button info = {
     .text = "Info",
     .rec = (VrRec) {86, 0, 14, 50},
-    .sec = gs->sections->optionsArea
+    .sec = gs->sections->optionsArea,
+    .handler = infoHandler,
+    .ctx = gs,
+    .image = LoadImage("wabbit_alpha.png")
   };
   Button legacy = {
     .text = "Legacy",

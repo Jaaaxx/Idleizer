@@ -6,7 +6,7 @@
 void drawButtons(Core* core) {
   for (int i = 0; i < core->buttons_size; i++) {
     Button* b = &core->buttons[i];
-    if (!b->hidden) {
+    if (!b->hidden && !getSection(core, b->sec)->hidden) {
       Rectangle rec = getTrueRec(core, b->rec, getSection(core, b->sec));
       if (b->image.data != NULL) {
         if (b->_texture.id <= 0) {

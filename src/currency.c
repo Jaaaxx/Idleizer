@@ -98,7 +98,7 @@ int addCurrency(Core* core, Currency currency) {
 }
 
 void drawCurrency(Core* core, Currency* c) {
-  if (!c->hidden) {
+  if (!c->hidden && !getSection(core, c->sec)->hidden) {
     Vector2 rec = getTrueVec(core, c->pos, getSection(core, c->sec));
 
     char currency_amount_text[256];
@@ -114,10 +114,7 @@ void drawCurrency(Core* core, Currency* c) {
 
 void drawCurrencies(Core* core) {
   for (int i = 0; i < core->currencies_size; i++) {
-    const Currency* c = &core->currencies[i];
-    if (!c->hidden) {
-      drawCurrency(core, c);
-    }
+    drawCurrency(core, &core->currencies[i]);
   }
 }
 

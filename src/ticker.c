@@ -42,19 +42,21 @@ int addTicker(Core* core, Ticker ticker) {
 
 
 void drawTicker(Core* core, Ticker* ticker, Color color) {
-  Vector2 vec = getTrueVec(core, ticker->pos, getSection(core, ticker->sec));
-  
-  char ticker_amount_text[256];
-  
-  strcpy(ticker_amount_text, ticker->name);
-  int nameLen = strlen(ticker->name);
-  
-  for (int i = 0; i < ticker->displayTick; i++) {
-    ticker_amount_text[nameLen+i] = '.';
+  if (!ticker->hidden && !getSection(core, ticker->sec)->hidden) {
+    Vector2 vec = getTrueVec(core, ticker->pos, getSection(core, ticker->sec));
+    
+    char ticker_amount_text[256];
+    
+    strcpy(ticker_amount_text, ticker->name);
+    int nameLen = strlen(ticker->name);
+    
+    for (int i = 0; i < ticker->displayTick; i++) {
+      ticker_amount_text[nameLen+i] = '.';
+    }
+    ticker_amount_text[nameLen+ticker->displayTick] = '\0';
+    
+    DrawText(ticker_amount_text, vec.x, vec.y, 20, color);
   }
-  ticker_amount_text[nameLen+ticker->displayTick] = '\0';
-  
-  DrawText(ticker_amount_text, vec.x, vec.y, 20, color);
 }
 
 
@@ -73,9 +75,7 @@ void handleTickers(Core* core) {
       t->displayTick++;
     }
     
-    if (!t->hidden) {
-      drawTicker(core, t, BLACK);
-    }
+    drawTicker(core, t, BLACK);
     t->tick++;
   }
 }

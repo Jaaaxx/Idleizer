@@ -1,6 +1,7 @@
 #include "idleizer.h"
 #include "currency.h"
 #include "button.h"
+#include "util.h"
 
 void runGame(Core* core, int game_width, int game_height, char* title) {
 	// Tell the window to use vsync and work on high DPI displays
@@ -43,11 +44,11 @@ static void destroyCore(Core* core) {
 }
 
 void freeAll(Core* core) {
-  unloadButtonResources(core);
-
   freeAllBuildings(core);
-  cleanupGameResources();
+  cleanupCpsResources();
+  cleanupSectionHideResources();
   freeCurrencyContexts();
+  unloadButtonResources(core);
   destroyCore(core);
   printf("Freed all engine memory\n");
 }

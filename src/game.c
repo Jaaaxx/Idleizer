@@ -20,11 +20,3 @@ void mouseButtonsHandler(Core* core, int* mouseBtn) {
   }
 }
 
-void cleanupGameResources() {
-  static double* prevCurrs = NULL;
-  if (prevCurrs != NULL) {
-    free(prevCurrs);
-    prevCurrs = NULL;
-  }
-}
-

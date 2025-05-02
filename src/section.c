@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include "section.h"
 #include "core.h"
+#include <string.h>
 #include <stdlib.h>
 
-Section *getSection(Core *core, int idx) {
+Section* getSection(Core *core, int idx) {
   return idx >= 0 ? &core->sections[idx] : NULL;
 }
 
@@ -56,10 +57,106 @@ float getSecY(Core* core, Section* sec) {
   return (sec->rec.y / 100) * getSecHeight(core, &secs[sec->parent]) + getSecY(core, &secs[sec->parent]);
 }
 
+static bool sectionIsAncestor(Core* core, int child, int parent) {
+  if (child == parent) {
+    return true;
+  }
+  Section* ptr = getSection(core, child);
+  while (ptr->parent >= 0) {
+    if (ptr->parent == parent) {
+      return true;
+    }
+    ptr = getSection(core, ptr->parent);
+  }
+  return false;
+}
+
+static void restoreSectionHiddens(Core* core, int section, bool* hiddens, int count) {
+  for (int i = 0; i < count; i++) {
+    // don't restore irrelevant sections
+    if (sectionIsAncestor(core, i, section)) {
+      getSection(core, i)->hidden = hiddens[i];
+    }
+  }
+}
+
+static void saveSectionHiddens(Core* core, BoolArr* vals) {
+  int count = core->sections_size;
+  for (int i = 0; i < count; i++) {
+    vals->arr[i] = getSection(core, i)->hidden;
+  }
+  vals->size = count;
+}
+
+// Static variables for toggleSectionHide
+static BoolArr* hiddenVals;
+static bool* displayHiddens;
+static int secSize = -1;
+
+void cleanupSectionHideResources() {
+  if (hiddenVals != NULL && secSize > 0) {
+    for (int i = 0; i < secSize; i++) {
+      if (hiddenVals[i].arr != NULL) {
+        free(hiddenVals[i].arr);
+      }
+      hiddenVals[i].size = 0;
+      hiddenVals[i].arr = NULL;
+    }
+    free(hiddenVals);
+  }
+
+  if (displayHiddens != NULL) {
+    free(displayHiddens);
+  }
+
+  hiddenVals = NULL;
+  displayHiddens = NULL;
+  secSize = -1;
+}
+
+void toggleSectionHide(Core* core, int section) {
+  if (secSize != core->sections_size) {
+    secSize = core->sections_size;
+    if (hiddenVals == NULL) {
+      hiddenVals = (BoolArr*) calloc(core->sections_size, sizeof(BoolArr));
+      displayHiddens = (bool*) calloc(core->sections_size, sizeof(bool));
+    } else {
+      hiddenVals = (BoolArr*) realloc(hiddenVals, core->sections_size * sizeof(BoolArr));
+      displayHiddens = (bool*) realloc(displayHiddens, core->sections_size * sizeof(bool));
+    }
+  }
+
+  BoolArr* savedVals = &hiddenVals[section];
+  if (!displayHiddens[section]) {
+    if (savedVals->arr == NULL) {
+      savedVals->arr = malloc(secSize * sizeof(bool));
+    } else if (savedVals->size != secSize) {
+      savedVals->arr = realloc(savedVals->arr, secSize * sizeof(bool));
+    }
+    savedVals->size = secSize;
+    saveSectionHiddens(core, savedVals);
+    core->sections[section].hidden = !core->sections[section].hidden;
+    displayHiddens[section] = !core->sections[section].hidden;
+  } else {
+    restoreSectionHiddens(core, section, savedVals->arr, savedVals->size);
+    displayHiddens[section] = !displayHiddens[section];
+  }
+}
+
+
 
 void drawSections(Core* core) {
   for (int i = 0; i < core->sections_size; i++) {
     const Section* s = &core->sections[i];
+
+    // ensure that hidden parents also hide all children
+    Section* ptr = s;
+    while (ptr->parent >= 0 && ptr->hidden != getSection(core, ptr->parent)->hidden) {
+      bool parentHidden = getSection(core, ptr->parent)->hidden;
+      ptr->hidden = parentHidden ? true : ptr->hidden;
+      ptr = getSection(core, ptr->parent);
+    }
+
     if (!s->hidden) {
       Rectangle rec = getSectionRec(core, s);  
       DrawRectangleRec(rec, s->bg); 

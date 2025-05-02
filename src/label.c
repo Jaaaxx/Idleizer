@@ -39,7 +39,7 @@ int addLabel(Core* core, Label label) {
 void drawLabels(Core* core) {
   for (int i = 0; i < core->labels_size; i++) {
     const Label* l = &core->labels[i];
-    if (!l->hidden) {
+    if (!l->hidden && !getSection(core, l->sec)->hidden) {
       Vector2 vec = getTrueVec(core, l->pos, getSection(core, l->sec));
       DrawText(l->text, vec.x, vec.y, l->fontSize, l->color);
     }
