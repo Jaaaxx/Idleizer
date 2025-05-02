@@ -5,16 +5,9 @@
 #include "raylib.h"
 #include "currency.h"
 #include "ticker.h"
-#include "draw.h"
 #include "label.h"
 #include "core.h"
 
-Section* getSection(Core* core, int idx);
-
-double calculateCPS(Core* core, int idx);
-
-void handleCurrencies(Core* core);
-void handleTickers(Core* core);
 void mouseButtonsHandler(Core* core, int* mouseBtn);
 void cleanupGameResources(void);
 #endif

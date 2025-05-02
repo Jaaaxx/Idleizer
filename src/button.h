@@ -18,6 +18,7 @@ typedef struct {
   bool hidden;
 } Button;
 
+void drawButtons(Core* core);
 int addButtons(Core* core, Button* buttons, int count); 
 int addButton(Core* core, Button button); 
 

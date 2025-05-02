@@ -2,6 +2,18 @@
 #include "core.h"
 #include <stddef.h>
 
+void drawButtons(Core* core) {
+  for (int i = 0; i < core->buttons_size; i++) {
+    const Button* b = &core->buttons[i];
+    if (!b->hidden) {
+      Rectangle rec = getTrueRec(core, b->rec, getSection(core, b->sec));  
+      DrawRectangleRec(rec, Fade(LIGHTGRAY, 0.3f));
+      DrawRectangleRoundedLinesEx(rec, 0.0f, 0.0f, 1.0f, Fade(BLACK, 0.4f));
+      DrawText(b->text, rec.x + 5, rec.y, 20, RED);
+    }
+  }
+}
+
 static void setDefaultButton(Button button, Button* ptr) {
   ptr->text = button.text ? button.text : "default text";
   ptr->rec = button.rec;

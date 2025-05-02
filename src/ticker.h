@@ -19,6 +19,9 @@ typedef struct {
   int sec;
   bool hidden;
 } Ticker;
+
 int addTickers(Core* core, Ticker* tickers, int count); 
 int addTicker(Core* core, Ticker ticker);
+void drawTicker(Core* core, Ticker* ticker, Color color);
+void handleTickers(Core* core);
 #endif

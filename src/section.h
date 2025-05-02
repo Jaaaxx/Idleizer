@@ -13,11 +13,14 @@ typedef struct Section {
   bool hidden;
 } Section;
 
+Section* getSection(Core* core, int idx);
+
 float getSecWidth(Core* core, Section* sec);
 float getSecX(Core* core, Section* sec);
 float getSecHeight(Core* core, Section* sec);
 float getSecY(Core* core, Section* sec);
 
+void drawSections(Core* core);
 int addSections(Core* core, Section* sections, int count);
 int addSection(Core* core, Section section); 
 

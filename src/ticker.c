@@ -1,5 +1,6 @@
 #include "ticker.h"
 #include "core.h"
+#include <string.h>
 
 static void setDefaultTicker(Ticker ticker, Ticker* ptr) {
   ptr->name = ticker.name ? ticker.name : "default_name";
@@ -37,5 +38,45 @@ int addTicker(Core* core, Ticker ticker) {
   setDefaultTicker(ticker, &core->tickers[core->tickers_size]);
 
   return core->tickers_size++;
+}
+
+
+void drawTicker(Core* core, Ticker* ticker, Color color) {
+  Vector2 vec = getTrueVec(core, ticker->pos, getSection(core, ticker->sec));
+  
+  char ticker_amount_text[256];
+  
+  strcpy(ticker_amount_text, ticker->name);
+  int nameLen = strlen(ticker->name);
+  
+  for (int i = 0; i < ticker->displayTick; i++) {
+    ticker_amount_text[nameLen+i] = '.';
+  }
+  ticker_amount_text[nameLen+ticker->displayTick] = '\0';
+  
+  DrawText(ticker_amount_text, vec.x, vec.y, 20, color);
+}
+
+
+void handleTickers(Core* core) {
+  bool tickerReached = false;
+  for (int i = 0; i < core->tickers_size; i++) {
+    Ticker* t = &core->tickers[i];
+    tickerReached = false;
+    if (t->tick == t->frequency) {
+      t->tick = 0;
+      t->handler(t->ctx);
+      tickerReached = true;
+      if (t->displayTick == 10) {
+        t->displayTick = 0;
+      }
+      t->displayTick++;
+    }
+    
+    if (!t->hidden) {
+      drawTicker(core, t, BLACK);
+    }
+    t->tick++;
+  }
 }
 

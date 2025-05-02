@@ -13,6 +13,7 @@ typedef struct {
   char* name;
   double amount;
   VrVec pos;
+  VrRec buttonRec;
   int sec;
   bool hidden;
   double cps;
@@ -21,7 +22,9 @@ typedef struct {
 
 int addCurrencies(Core* core, Currency* currencies, int count); 
 int addCurrency(Core* core, Currency currency);
-// Function to clean up currency button contexts
 void freeCurrencyContexts();
+void drawCurrency(Core* core, Currency* c);
+void drawCurrencies(Core* core);
+void handleCurrencies(Core* core);
 
 #endif

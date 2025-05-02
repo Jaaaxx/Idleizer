@@ -19,5 +19,6 @@ typedef struct {
 
 int addLabels(Core* core, Label* labels, int count);
 int addLabel(Core* core, Label label);
+void drawLabels(Core* core);
 
 #endif

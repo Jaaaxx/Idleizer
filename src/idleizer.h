@@ -15,7 +15,6 @@
 #include "currency.h"
 #include "button.h"
 #include "game.h"
-#include "draw.h"
 #include "ticker.h"
 #include "section.h"
 #include "core.h"

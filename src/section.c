@@ -3,6 +3,10 @@
 #include "core.h"
 #include <stdlib.h>
 
+Section *getSection(Core *core, int idx) {
+  return idx >= 0 ? &core->sections[idx] : NULL;
+}
+
 float getSecWidth(Core* core, Section* sec) {
   Section* secs = core->sections;
   if (sec == 0) {
@@ -50,6 +54,18 @@ float getSecY(Core* core, Section* sec) {
   }
 
   return (sec->rec.y / 100) * getSecHeight(core, &secs[sec->parent]) + getSecY(core, &secs[sec->parent]);
+}
+
+
+void drawSections(Core* core) {
+  for (int i = 0; i < core->sections_size; i++) {
+    const Section* s = &core->sections[i];
+    if (!s->hidden) {
+      Rectangle rec = getSectionRec(core, s);  
+      DrawRectangleRec(rec, s->bg); 
+      DrawRectangleLines(rec.x, rec.y, rec.width, rec.height, BLACK);
+    }
+  }
 }
 
 // todo for this and all data types: improve defaults by giving users a createSection() function?
