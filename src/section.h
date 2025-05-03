@@ -24,6 +24,7 @@ float getSecHeight(Core* core, Section* sec);
 float getSecY(Core* core, Section* sec);
 
 void toggleSectionHide(Core* core, int section);
+bool sectionHidden(Core* core, int section);
 
 void drawSections(Core* core);
 int addSections(Core* core, Section* sections, int count);

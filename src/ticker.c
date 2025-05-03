@@ -42,7 +42,7 @@ int addTicker(Core* core, Ticker ticker) {
 
 
 void drawTicker(Core* core, Ticker* ticker, Color color) {
-  if (!ticker->hidden && !getSection(core, ticker->sec)->hidden) {
+  if (!ticker->hidden && !sectionHidden(core, ticker->sec)) {
     Vector2 vec = getTrueVec(core, ticker->pos, getSection(core, ticker->sec));
     
     char ticker_amount_text[256];

@@ -52,7 +52,6 @@ static void initSections(GameState* gs) {
     .rec = {0, 0, 30, 100},
     .bg = YELLOW,
     .parent = 0,
-    .hidden = true
   };
   Section displayArea = {
     .rec = {30, 10, 45, 90},
@@ -198,28 +197,6 @@ static void destroyGameState(GameState* gs) {
   free(gs->core);
 }
 
-static VrVec calcNextTickerPos(Core* core) {
-  return calcBuildingOffsetPos(core->buildings_size, 60, 12, 3);
-}
-
-static VrVec calcNextLabelPosAmount(Core* core) {
-   return calcBuildingOffsetPos(core->buildings_size, 10, 12, 3);
-}
-
-static VrVec calcNextLabelPosCPS(Core* core) {
-  return calcBuildingOffsetPos(core->buildings_size, 10, 12, 8);
-}
-
-static VrRec calcNextSectionPos(Core* core) {
-  VrRec ret = { 0, 13 * core->buildings_size, 100, 13 };
-  return ret;
-}
-
-static VrRec calcNextButtonPos(Core* core) {
-  VrRec ret = { 5, 12 * core->buildings_size + 5, 80, 10 };
-  return ret;
-}
-
 static void setupGameBuilding(GameState* gs, char* name, double cps, double cost, int bCurr, int gCurr) {
   Core* core = gs->core;
  
@@ -229,11 +206,16 @@ static void setupGameBuilding(GameState* gs, char* name, double cps, double cost
   building.name = name;
   building.bCurr = bCurr;
   building.gCurr = gCurr;
-  building.positions.ticker = (BPosVec){ calcNextTickerPos(core), gs->sections->displayArea };
-  building.positions.amountLabel = (BPosVec){ calcNextLabelPosAmount(core), gs->sections->displayArea };
-  building.positions.cpsLabel = (BPosVec){ calcNextLabelPosCPS(core), gs->sections->displayArea };
-  building.positions.button = (BPosRec){ calcNextButtonPos(core), gs->sections->shopArea };
-  building.positions.section = (BPosRec){ calcNextSectionPos(core), gs->sections->displayArea };
+
+  // new buildings generate a single section, so this will point to the new building's section
+  int newBuildingSec = gs->core->sections_size;
+  int bs = core->buildings_size;
+
+  building.positions.section = (BPosRec){ (VrRec) {0, 13 * bs, 100, 13}, gs->sections->displayArea };
+  building.positions.ticker = (BPosVec){ (VrVec) {60, 40}, newBuildingSec };
+  building.positions.amountLabel = (BPosVec){ (VrVec) {10, 30}, newBuildingSec };
+  building.positions.cpsLabel = (BPosVec){ (VrVec) {10, 60}, newBuildingSec };
+  building.positions.button = (BPosRec){ (VrRec) {5, 12 * bs + 5, 80, 10}, gs->sections->shopArea };
 
   addBuilding(core, building);
 }

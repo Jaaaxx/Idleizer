@@ -153,9 +153,9 @@ static void hideChildrenParent(Core* core, Section* s) {
   }
 }
 
-static bool anyParentHidden(Core* core, int section) {
+bool sectionHidden(Core* core, int section) {
   Section* ptr = getSection(core, section);
-  bool parentIsHidden = false;
+  bool parentIsHidden = ptr->hidden;
   while (ptr->parent >= 0 && !parentIsHidden) {
     parentIsHidden = getSection(core, ptr->parent)->hidden;
     ptr = getSection(core, ptr->parent);
@@ -167,7 +167,7 @@ void drawSections(Core* core) {
   for (int i = 0; i < core->sections_size; i++) {
     const Section* s = &core->sections[i];
  
-    if (!s->hidden && !anyParentHidden(core, i)) {
+    if (!sectionHidden(core, i)) {
       Rectangle rec = getSectionRec(core, s);  
       DrawRectangleRec(rec, s->bg); 
       DrawRectangleLines(rec.x, rec.y, rec.width, rec.height, BLACK);

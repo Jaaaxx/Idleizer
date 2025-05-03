@@ -98,7 +98,7 @@ int addCurrency(Core* core, Currency currency) {
 }
 
 void drawCurrency(Core* core, Currency* c) {
-  if (!c->hidden && !getSection(core, c->sec)->hidden) {
+  if (!c->hidden && !sectionHidden(core, c->sec)) {
     Vector2 rec = getTrueVec(core, c->pos, getSection(core, c->sec));
 
     char currency_amount_text[256];
