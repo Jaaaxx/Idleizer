@@ -11,3 +11,5 @@ make clean config=debug_x64
 make config=debug_x64
 
 echo "Done! Run './run.sh' to launch examples." 
+echo "Press any key to exit."
+read -n 1
