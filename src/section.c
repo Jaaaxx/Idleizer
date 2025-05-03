@@ -116,6 +116,7 @@ void cleanupSectionHideResources() {
 
 void toggleSectionHide(Core* core, int section) {
   if (secSize != core->sections_size) {
+    // todo fix subsections not unhiding properly after being hidden
     secSize = core->sections_size;
     if (hiddenVals == NULL) {
       hiddenVals = (BoolArr*) calloc(core->sections_size, sizeof(BoolArr));
@@ -136,28 +137,37 @@ void toggleSectionHide(Core* core, int section) {
     savedVals->size = secSize;
     saveSectionHiddens(core, savedVals);
     core->sections[section].hidden = !core->sections[section].hidden;
-    displayHiddens[section] = !core->sections[section].hidden;
+    displayHiddens[section] = core->sections[section].hidden;
   } else {
     restoreSectionHiddens(core, section, savedVals->arr, savedVals->size);
     displayHiddens[section] = !displayHiddens[section];
   }
 }
 
+static void hideChildrenParent(Core* core, Section* s) {
+  Section* ptr = s;
+  while (ptr->parent >= 0 && ptr->hidden != getSection(core, ptr->parent)->hidden) {
+    bool parentHidden = getSection(core, ptr->parent)->hidden;
+    ptr->hidden = parentHidden ? true : ptr->hidden;
+    ptr = getSection(core, ptr->parent);
+  }
+}
 
+static bool anyParentHidden(Core* core, int section) {
+  Section* ptr = getSection(core, section);
+  bool parentIsHidden = false;
+  while (ptr->parent >= 0 && !parentIsHidden) {
+    parentIsHidden = getSection(core, ptr->parent)->hidden;
+    ptr = getSection(core, ptr->parent);
+  }
+  return parentIsHidden;
+}
 
 void drawSections(Core* core) {
   for (int i = 0; i < core->sections_size; i++) {
     const Section* s = &core->sections[i];
-
-    // ensure that hidden parents also hide all children
-    Section* ptr = s;
-    while (ptr->parent >= 0 && ptr->hidden != getSection(core, ptr->parent)->hidden) {
-      bool parentHidden = getSection(core, ptr->parent)->hidden;
-      ptr->hidden = parentHidden ? true : ptr->hidden;
-      ptr = getSection(core, ptr->parent);
-    }
-
-    if (!s->hidden) {
+ 
+    if (!s->hidden && !anyParentHidden(core, i)) {
       Rectangle rec = getSectionRec(core, s);  
       DrawRectangleRec(rec, s->bg); 
       DrawRectangleLines(rec.x, rec.y, rec.width, rec.height, BLACK);
@@ -165,9 +175,6 @@ void drawSections(Core* core) {
   }
 }
 
-// todo for this and all data types: improve defaults by giving users a createSection() function?
-// it would populate with sentinel values to determine what the user actually set and improve defaults
-// could be more trouble for the user though adding complexity per object created
 static void setDefaultSection(Section section, Section* ptr) {
   ptr->rec = section.rec;
   ptr->bg = section.bg;
