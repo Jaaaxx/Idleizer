@@ -14,7 +14,7 @@ An idle game engine written in pure C99 with Raylib. This project provides a fra
 
 ## Dependencies
 
-- [Raylib](https://www.raylib.com/) - A simple and easy-to-use library to learn videogame programming
+- [Raylib](https://www.raylib.com/) - A simple and easy-to-use library to learn videogame programming (included in the build directory)
 - C99 compatible compiler
 
 ## Building from Source
