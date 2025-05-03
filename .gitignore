@@ -9,12 +9,14 @@ bin/
 bin/Debug/
 bin/Release/
 build/obj/
-examples/*/[Dd]ebug/
-examples/*/[Rr]elease/
 
-# Binary executables - match by name without extension
-MineHunter
-examples/MineHunter/MineHunter
+# Example binaries
+examples/**/*.o
+examples/**/*.exe
+examples/**/*.out
+examples/**/*.a
+examples/**/MineHunter
+!examples/MineHunter/
 
 # Prerequisites
 *.d
