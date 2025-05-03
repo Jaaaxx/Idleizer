@@ -1,14 +1,4 @@
 #include "idleizer.h"
-#include "text_buffer.h"
-#include "core.h"
-#include "section.h"
-#include "currency.h"
-#include "button.h"
-#include "label.h"
-#include "ticker.h"
-#include "building.h"
-#include "vr_vec.h"
-#include "vr_rec.h"
 
 #define game_width 1280
 #define game_height 800
@@ -53,6 +43,8 @@ static void updateFlavorTextLabel(void* ctx) {
 }
 
 static void initSections(GameState* gs) {
+  Color darkBlue = (Color) { 128, 200, 200, 255 };
+
   Section gameArea = {
     .rec = {0, 0, game_width, game_height},
     .bg = BLANK,
@@ -60,7 +52,7 @@ static void initSections(GameState* gs) {
   };
   Section mainArea = {
     .rec = {0, 0, 30, 100},
-    .bg = YELLOW,
+    .bg = darkBlue,
     .parent = 0,
   };
   Section displayArea = {
@@ -75,7 +67,7 @@ static void initSections(GameState* gs) {
   };
   Section shopArea = {
     .rec = {75, 0, 25, 100},
-    .bg = GRAY,
+    .bg = darkBlue,
     .parent = 0
   };
 
