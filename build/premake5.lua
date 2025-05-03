@@ -215,6 +215,42 @@ project "MineHunter"
         
     filter {}
 
+project "CookieClicker"
+    kind "ConsoleApp"
+    language "C"
+    location "build_files/"
+    targetdir "../examples/CookieClicker"
+    
+    files { "../examples/CookieClicker/CookieClicker.c" }
+    
+    includedirs {
+        "../include",
+        "../include/idleizer",
+        raylib_dir .. "/src"
+    }
+    
+    links { "Idleizer", "raylib" }
+    
+    cdialect "C99"
+    platform_defines()
+    
+    filter "action:vs*"
+        defines { "_WINSOCK_DEPRECATED_NO_WARNINGS", "_CRT_SECURE_NO_WARNINGS" }
+        dependson { "Idleizer", "raylib" }
+        
+    filter "system:windows"
+        defines { "_WIN32" }
+        links { "winmm", "gdi32", "opengl32" }
+        libdirs { "../bin/%{cfg.buildcfg}" }
+        
+    filter "system:linux"
+        links { "pthread", "m", "dl", "rt", "X11" }
+        
+    filter "system:macosx"
+        links { "OpenGL.framework", "Cocoa.framework", "IOKit.framework", "CoreFoundation.framework", "CoreAudio.framework", "CoreVideo.framework", "AudioToolbox.framework" }
+        
+    filter {}
+
 project "raylib"
     kind "StaticLib"
     

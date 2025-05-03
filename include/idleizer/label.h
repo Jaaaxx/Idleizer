@@ -9,10 +9,13 @@ typedef struct Core Core;
 
 typedef struct {
   char* text;
+  // todo turn this into a rec and use it to calculate line breaks, font
   VrVec pos;
   int fontSize;
   Color color;
   bool hidden;
+  // todo implement
+  bool textCentered;
   int sec;
 } Label;
 

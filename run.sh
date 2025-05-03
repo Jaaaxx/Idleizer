@@ -15,6 +15,7 @@ echo
 echo "Idleizer - An idle game engine written in C99 with Raylib"
 echo "Available examples:"
 echo "1) Mine Hunter"
+echo "2) (C)ookie Clicker"
 echo
 read -p "Enter number to run (or any other key to exit): " choice
 
@@ -23,6 +24,11 @@ case $choice in
     echo "Running Mine Hunter..."
     cd examples/MineHunter
     ./MineHunter
+    ;;
+  2)
+    echo "Running (C)ookie Clicker..."
+    cd examples/CookieClicker
+    ./CookieClicker
     ;;
   *)
     echo "Exiting."

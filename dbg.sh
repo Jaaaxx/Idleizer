@@ -129,8 +129,9 @@ make config=$BUILD_CONFIG
 echo
 echo "Idleizer - Debug Mode ($BUILD_CONFIG)"
 echo "Choose what to debug:"
-echo "1) Mine Hunter Example"
-echo "2) Custom Binary"
+echo "1) Mine Hunter"
+echo "2) (C)ookie Clicker"
+echo "3) Custom Binary"
 echo
 read -p "Enter choice [1]: " target_choice
 target_choice=${target_choice:-1}
@@ -183,8 +184,43 @@ case $target_choice in
                 ;;
         esac
         ;;
+      2) # (C)ookie Clicker
+        echo "Building CookieClicker..."
+        make config=$BUILD_CONFIG CookieClicker 
+        cd examples/CookieClicker
         
-    2) # Custom Binary
+        # Update log path to be relative to current directory
+        LOG_DIR="../../logs"
+        mkdir -p "$LOG_DIR"
+        
+        case $tool_choice in
+            1) # GDB
+                echo "Starting GDB with Cookie Clicker..."
+                launch_gdb "./CookieClicker"
+                ;;
+            2) # Valgrind
+                if [ "$VALGRIND_INSTALLED" -eq 1 ]; then
+                    echo "Starting Valgrind with Cookie Clicker..."
+                    launch_valgrind "./CookieClicker"
+                else
+                    echo "Valgrind not installed. Using GDB instead."
+                    launch_gdb "./CookieClicker"
+                fi
+                ;;
+            3) # Custom Command
+                echo "Enter custom debugging command (e.g., 'gdb ./CookieClicker' or 'valgrind ./CookieClicker'):"
+                read -p "> " custom_cmd
+                run_custom_command "$custom_cmd"
+                ;;
+            *)
+                echo "Invalid choice, using GDB."
+                launch_gdb "./CookieClicker"
+                ;;
+        esac
+        ;;
+        
+       
+    3) # Custom Binary
         echo "Enter path to binary to debug (relative to project root):"
         read -p "> " binary_path
         
