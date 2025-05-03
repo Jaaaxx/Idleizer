@@ -73,7 +73,6 @@ static bool sectionIsAncestor(Core* core, int child, int parent) {
 
 static void restoreSectionHiddens(Core* core, int section, bool* hiddens, int count) {
   for (int i = 0; i < count; i++) {
-    // don't restore irrelevant sections
     if (sectionIsAncestor(core, i, section)) {
       getSection(core, i)->hidden = hiddens[i];
     }
@@ -88,7 +87,6 @@ static void saveSectionHiddens(Core* core, BoolArr* vals) {
   vals->size = count;
 }
 
-// Static variables for toggleSectionHide
 static BoolArr* hiddenVals;
 static bool* displayHiddens;
 static int secSize = -1;
@@ -116,7 +114,6 @@ void cleanupSectionHideResources() {
 
 void toggleSectionHide(Core* core, int section) {
   if (secSize != core->sections_size) {
-    // todo fix subsections not unhiding properly after being hidden
     secSize = core->sections_size;
     if (hiddenVals == NULL) {
       hiddenVals = (BoolArr*) calloc(core->sections_size, sizeof(BoolArr));

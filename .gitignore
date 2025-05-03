@@ -2,6 +2,7 @@
 *.d
 
 *.gdb_history
+logs/*
 
 # Object files
 *.o

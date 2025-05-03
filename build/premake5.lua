@@ -90,12 +90,8 @@ end
 downloadRaylib = true
 raylib_dir = "external/raylib-master"
 
-workspaceName = 'idleizer'
+workspaceName = 'Idleizer'
 baseName = path.getbasename(path.getdirectory(os.getcwd()));
-
---if (baseName ~= 'raylib-quickstart') then
-    workspaceName = baseName
---end
 
 if (os.isdir('build_files') == false) then
     os.mkdir('build_files')
@@ -133,103 +129,118 @@ workspace (workspaceName)
 
 if (downloadRaylib) then
     build_externals()
-	end
+end
 
-    startproject(workspaceName)
+startproject(workspaceName)
 
-    project (workspaceName)
-        kind "ConsoleApp"
-        location "build_files/"
-        targetdir "../bin/%{cfg.buildcfg}"
+project (workspaceName)
+    kind "StaticLib"  -- Changed to StaticLib since we're making a library
+    language "C"
+    location "build_files/"
+    targetdir "../bin/%{cfg.buildcfg}"
 
-        filter {"system:windows", "configurations:Release or Release_RGFW", "action:gmake*"}
-            kind "WindowedApp"
-            buildoptions { "-Wl,--subsystem,windows" }
+    vpaths 
+    {
+        ["Header Files/*"] = { "../include/**.h", "../src/**.h" },
+        ["Source Files/*"] = { "../src/**.c" },
+    }
+    files { "../src/**.c", "../src/**.h", "../include/**.h" }
 
-        filter {"system:windows", "configurations:Release or Release_RGFW", "action:vs*"}
-            kind "WindowedApp"
-            entrypoint "mainCRTStartup"
+    includedirs {
+        "../src",
+        "../include",
+        "../include/idleizer",
+        raylib_dir .. "/src",
+        raylib_dir .. "/src/external",
+        raylib_dir .. "/src/external/glfw/include"
+    }
 
-        filter "action:vs*"
-            debugdir "$(SolutionDir)"
+    links { "raylib" }
 
-        filter{}
+    cdialect "C99"
+    platform_defines()
 
-        vpaths 
-        {
-            ["Header Files/*"] = { "../include/**.h",  "../include/**.hpp", "../src/**.h", "../src/**.hpp"},
-            ["Source Files/*"] = {"../src/**.c", "src/**.cpp"},
-        }
-        files {"../src/**.c", "../src/**.cpp", "../src/**.h", "../src/**.hpp", "../include/**.h", "../include/**.hpp"}
+    filter "action:vs*"
+        defines { "_WINSOCK_DEPRECATED_NO_WARNINGS", "_CRT_SECURE_NO_WARNINGS" }
+        dependson { "raylib" }
+        characterset ("Unicode")
 
-        includedirs {
-            "../src",
-            "../include",
-            raylib_dir .. "/src",
-            raylib_dir .. "/src/external",
-            raylib_dir .. "/src/external/glfw/include"
-        }
+    filter "system:windows"
+        defines { "_WIN32" }
+        links { "winmm", "gdi32", "opengl32" }
+        libdirs { "../bin/%{cfg.buildcfg}" }
 
+    filter "system:linux"
+        links { "pthread", "m", "dl", "rt", "X11" }
 
-        links {"raylib"}
+    filter "system:macosx"
+        links { "OpenGL.framework", "Cocoa.framework", "IOKit.framework", "CoreFoundation.framework", "CoreAudio.framework", "CoreVideo.framework", "AudioToolbox.framework" }
 
-        cdialect "C17"
-        cppdialect "C++17"
+    filter {}
 
-        includedirs {raylib_dir .. "/src" }
-        includedirs {raylib_dir .."/src/external" }
-        includedirs { raylib_dir .."/src/external/glfw/include" }
-        flags { "ShadowedVariables"}
-        platform_defines()
-
-        filter "action:vs*"
-            defines{"_WINSOCK_DEPRECATED_NO_WARNINGS", "_CRT_SECURE_NO_WARNINGS"}
-            dependson {"raylib"}
-            links {"raylib.lib"}
-            characterset ("Unicode")
-            buildoptions { "/Zc:__cplusplus" }
-
-        filter "system:windows"
-            defines{"_WIN32"}
-            links {"winmm", "gdi32", "opengl32"}
-            libdirs {"../bin/%{cfg.buildcfg}"}
-
-        filter "system:linux"
-            links {"pthread", "m", "dl", "rt", "X11"}
-
-        filter "system:macosx"
-            links {"OpenGL.framework", "Cocoa.framework", "IOKit.framework", "CoreFoundation.framework", "CoreAudio.framework", "CoreVideo.framework", "AudioToolbox.framework"}
-
-        filter{}
-		
-
-    project "raylib"
-        kind "StaticLib"
+-- Mine Hunter Example
+project "MineHunter"
+    kind "ConsoleApp"
+    language "C"
+    location "build_files/"
+    targetdir "../examples/MineHunter"
     
-        platform_defines()
+    files { "../examples/MineHunter/MineHunter.c" }
+    
+    includedirs {
+        "../include",
+        "../include/idleizer",
+        raylib_dir .. "/src"
+    }
+    
+    links { "Idleizer", "raylib" }
+    
+    cdialect "C99"
+    platform_defines()
+    
+    filter "action:vs*"
+        defines { "_WINSOCK_DEPRECATED_NO_WARNINGS", "_CRT_SECURE_NO_WARNINGS" }
+        dependson { "Idleizer", "raylib" }
+        
+    filter "system:windows"
+        defines { "_WIN32" }
+        links { "winmm", "gdi32", "opengl32" }
+        libdirs { "../bin/%{cfg.buildcfg}" }
+        
+    filter "system:linux"
+        links { "pthread", "m", "dl", "rt", "X11" }
+        
+    filter "system:macosx"
+        links { "OpenGL.framework", "Cocoa.framework", "IOKit.framework", "CoreFoundation.framework", "CoreAudio.framework", "CoreVideo.framework", "AudioToolbox.framework" }
+        
+    filter {}
 
-        location "build_files/"
+project "raylib"
+    kind "StaticLib"
+    
+    platform_defines()
 
-        language "C"
-        targetdir "../bin/%{cfg.buildcfg}"
+    location "build_files/"
 
-        filter "action:vs*"
-            defines{"_WINSOCK_DEPRECATED_NO_WARNINGS", "_CRT_SECURE_NO_WARNINGS"}
-            characterset ("Unicode")
-            buildoptions { "/Zc:__cplusplus" }
-        filter{}
+    language "C"
+    targetdir "../bin/%{cfg.buildcfg}"
 
-        includedirs {raylib_dir .. "/src", raylib_dir .. "/src/external/glfw/include" }
-        vpaths
-        {
-            ["Header Files"] = { raylib_dir .. "/src/**.h"},
-            ["Source Files/*"] = { raylib_dir .. "/src/**.c"},
-        }
-        files {raylib_dir .. "/src/*.h", raylib_dir .. "/src/*.c"}
+    filter "action:vs*"
+        defines{"_WINSOCK_DEPRECATED_NO_WARNINGS", "_CRT_SECURE_NO_WARNINGS"}
+        characterset ("Unicode")
+    filter{}
 
-        removefiles {raylib_dir .. "/src/rcore_*.c"}
+    includedirs {raylib_dir .. "/src", raylib_dir .. "/src/external/glfw/include" }
+    vpaths
+    {
+        ["Header Files"] = { raylib_dir .. "/src/**.h"},
+        ["Source Files/*"] = { raylib_dir .. "/src/**.c"},
+    }
+    files {raylib_dir .. "/src/*.h", raylib_dir .. "/src/*.c"}
 
-        filter { "system:macosx", "files:" .. raylib_dir .. "/src/rglfw.c" }
-            compileas "Objective-C"
+    removefiles {raylib_dir .. "/src/rcore_*.c"}
 
-        filter{}
+    filter { "system:macosx", "files:" .. raylib_dir .. "/src/rglfw.c" }
+        compileas "Objective-C"
+
+    filter{}
