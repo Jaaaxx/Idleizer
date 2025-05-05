@@ -142,14 +142,15 @@ project (workspaceName)
     vpaths 
     {
         ["Header Files/*"] = { "../include/**.h", "../src/**.h" },
-        ["Source Files/*"] = { "../src/**.c" },
+        ["Source Files/*"] = { "../src/**.c", "../include/external/**.c" },
     }
-    files { "../src/**.c", "../src/**.h", "../include/**.h" }
+    files { "../src/**.c", "../src/**.h", "../include/**.h", "../include/external/**.c" }
 
     includedirs {
         "../src",
         "../include",
         "../include/idleizer",
+        "../include/external",
         raylib_dir .. "/src",
         raylib_dir .. "/src/external",
         raylib_dir .. "/src/external/glfw/include"
@@ -190,6 +191,7 @@ project "MineHunter"
     includedirs {
         "../include",
         "../include/idleizer",
+        "../include/external",
         raylib_dir .. "/src"
     }
     
@@ -226,6 +228,7 @@ project "CookieClicker"
     includedirs {
         "../include",
         "../include/idleizer",
+        "../include/external",
         raylib_dir .. "/src"
     }
     

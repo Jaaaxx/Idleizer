@@ -215,8 +215,8 @@ static void setupGameBuilding(GameState* gs, char* name, double cps, double cost
 
   building.positions.section = (BPosRec){ (VrRec) {0, 13 * bs, 100, 13}, gs->sections->displayArea };
   building.positions.ticker = (BPosVec){ (VrVec) {60, 40}, newBuildingSec };
-  building.positions.amountLabel = (BPosVec){ (VrVec) {10, 30}, newBuildingSec };
-  building.positions.cpsLabel = (BPosVec){ (VrVec) {10, 60}, newBuildingSec };
+  building.positions.amountLabel = (BPosRec){ (VrRec) {10, 30}, newBuildingSec };
+  building.positions.cpsLabel = (BPosRec){ (VrRec) {10, 60}, newBuildingSec };
   building.positions.button = (BPosRec){ (VrRec) {5, 12 * bs + 5, 80, 10}, gs->sections->shopArea };
 
   addBuilding(core, building);

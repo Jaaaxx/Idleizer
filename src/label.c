@@ -1,5 +1,7 @@
 #include "label.h"
 #include "core.h"
+#include "external/text.h"
+#include <stdio.h>
 
 static void setDefaultLabel(Label label, Label* ptr) {
   ptr->text = label.text ? label.text : "default text";
@@ -40,8 +42,13 @@ void drawLabels(Core* core) {
   for (int i = 0; i < core->labels_size; i++) {
     const Label* l = &core->labels[i];
     if (!l->hidden && !sectionHidden(core, l->sec)) {
-      Vector2 vec = getTrueVec(core, l->pos, getSection(core, l->sec));
-      DrawText(l->text, vec.x, vec.y, l->fontSize, l->color);
+      Font font = GetFontDefault();
+      Rectangle rec = getTrueRec(core, l->pos, getSection(core, l->sec));
+      if (rec.width == 0 ) {
+        DrawTextEx(font, l->text, (Vector2) {rec.x, rec.y}, l->fontSize, 1.0f, l->color);
+      } else {
+        DrawTextBoxed(font, l->text, rec, l->fontSize, 1.0f, true, l->color);
+      }
     }
   }
 }

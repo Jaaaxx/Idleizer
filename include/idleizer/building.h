@@ -21,8 +21,8 @@ typedef struct BPosRec {
 
 typedef struct BuildingPositions {
   BPosVec ticker;
-  BPosVec amountLabel;
-  BPosVec cpsLabel;
+  BPosRec amountLabel;
+  BPosRec cpsLabel;
   BPosRec button;
   BPosRec section;
 } BuildingPositions;

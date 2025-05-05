@@ -30,7 +30,7 @@ endif
 RESCOMP = windres
 TARGETDIR = ../../examples/MineHunter
 TARGET = $(TARGETDIR)/MineHunter
-INCLUDES += -I../../include -I../../include/idleizer -I../external/raylib-master/src
+INCLUDES += -I../../include -I../../include/idleizer -I../../include/external -I../external/raylib-master/src
 FORCE_INCLUDE +=
 ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
 ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)

@@ -28,7 +28,7 @@ ifeq ($(origin AR), default)
   AR = ar
 endif
 RESCOMP = windres
-INCLUDES += -I../../src -I../../include -I../../include/idleizer -I../external/raylib-master/src -I../external/raylib-master/src/external -I../external/raylib-master/src/external/glfw/include
+INCLUDES += -I../../src -I../../include -I../../include/idleizer -I../../include/external -I../external/raylib-master/src -I../external/raylib-master/src/external -I../external/raylib-master/src/external/glfw/include
 FORCE_INCLUDE +=
 ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
 ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
@@ -191,6 +191,7 @@ GENERATED += $(OBJDIR)/game.o
 GENERATED += $(OBJDIR)/idleizer.o
 GENERATED += $(OBJDIR)/label.o
 GENERATED += $(OBJDIR)/section.o
+GENERATED += $(OBJDIR)/text.o
 GENERATED += $(OBJDIR)/text_buffer.o
 GENERATED += $(OBJDIR)/ticker.o
 GENERATED += $(OBJDIR)/util.o
@@ -203,6 +204,7 @@ OBJECTS += $(OBJDIR)/game.o
 OBJECTS += $(OBJDIR)/idleizer.o
 OBJECTS += $(OBJDIR)/label.o
 OBJECTS += $(OBJDIR)/section.o
+OBJECTS += $(OBJDIR)/text.o
 OBJECTS += $(OBJDIR)/text_buffer.o
 OBJECTS += $(OBJDIR)/ticker.o
 OBJECTS += $(OBJDIR)/util.o
@@ -290,6 +292,9 @@ $(OBJDIR)/label.o: ../../src/label.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/section.o: ../../src/section.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/text.o: ../../include/external/text.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/text_buffer.o: ../../src/text_buffer.c

@@ -1,7 +1,7 @@
 #ifndef LABEL_H
 #define LABEL_H
 #include <stdbool.h>
-#include "vr_vec.h"
+#include "vr_rec.h"
 #include <stdlib.h>
 
 typedef struct Core Core;
@@ -9,13 +9,10 @@ typedef struct Core Core;
 
 typedef struct {
   char* text;
-  // todo turn this into a rec and use it to calculate line breaks, font
-  VrVec pos;
+  VrRec pos;
   int fontSize;
   Color color;
   bool hidden;
-  // todo implement
-  bool textCentered;
   int sec;
 } Label;
 
