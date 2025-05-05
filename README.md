@@ -48,7 +48,7 @@ An idle game engine written in pure C99 with Raylib. This project provides a fra
 The project follows a traditional C project layout:
 
 - `/src` - Source files (.c)
-- `/include/idleizer` - Header files (.h)
+- `/include` - Header files (.h)
 - `/examples` - Example games using the engine
   - `/MineHunter` - Mine Hunter example game
 - `/resources` - Game resources (images, sounds, etc.)
