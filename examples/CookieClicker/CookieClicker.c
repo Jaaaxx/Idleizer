@@ -164,8 +164,7 @@ static void initLabels(GameState* gs) {
     .color = BLACK,
     .pos = {15, 5, 70, 100},
     .sec = secs->optionsArea,
-    .font = "fonts/Merriweather-Regular.ttf",
-    .fontSize = 22
+    .fontSize = 20 
   };
 
   Label ls[] = { flavorText };
@@ -234,6 +233,9 @@ int main(void) {
   setTextBuffer(&gs.texts.flavorText, "You feel like making cookies. But " 
                                        "nobody wants to eat your cookies.");
 
+
+  
+  setDefaultFontResource("fonts/Merriweather-Regular.ttf");
 
   InitResourcePaths();
 

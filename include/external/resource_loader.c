@@ -2,8 +2,14 @@
 #include "external/resource_path.h"
 #include "raylib.h"
 
+static char* DEFAULT_FONT = "fonts/Lato-Regular.ttf";
+
+void setDefaultFontResource(char* resource) {
+  DEFAULT_FONT = resource;
+}
+
 char* getDefaultFontResource() {
-  return "fonts/Lato-Regular.ttf";
+  return DEFAULT_FONT;
 }
 
 // Load texture from file with automatic path resolution

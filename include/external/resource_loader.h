@@ -21,6 +21,7 @@ Image LoadResourceImage(const char* fileName);
 // Searches in all registered resource directories
 Font LoadResourceFont(const char* fileName);
 char* getDefaultFontResource();
+void setDefaultFontResource(char* resource);
 
 // Load sound from file with automatic path resolution
 // Searches in all registered resource directories
