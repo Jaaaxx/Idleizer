@@ -16,34 +16,35 @@ void InitResourcePaths(void) {
     // Clear any existing paths
     CloseResourcePaths();
     
-    // Add the engine's resources directory (assuming it's relative to the executable directory)
-    AddResourceDirectory("resources");
-    
     // Get the current working directory and add its resources folder
     const char* currentDir = GetWorkingDirectory();
+    
     if (currentDir != NULL) {
+        // First try the current directory resources
         char projectResourceDir[MAX_PATH_LENGTH];
         snprintf(projectResourceDir, MAX_PATH_LENGTH, "%s/resources", currentDir);
         AddResourceDirectory(projectResourceDir);
         
-        // For examples, also try adding a resources directory one level up 
-        // (useful for projects in examples/ subdirectories)
-        char parentDir[MAX_PATH_LENGTH];
-        snprintf(parentDir, MAX_PATH_LENGTH, "%s/..", currentDir);
-        
-        // Store the original directory so we can return to it
-        const char* originalDir = currentDir;
-        
-        if (ChangeDirectory(parentDir)) {
-            const char* newDir = GetWorkingDirectory();
-            if (newDir != NULL) {
-                char parentResourceDir[MAX_PATH_LENGTH];
-                snprintf(parentResourceDir, MAX_PATH_LENGTH, "%s/resources", newDir);
-                AddResourceDirectory(parentResourceDir);
-            }
+        // Check if we're in an example directory
+        if (strstr(currentDir, "examples/") != NULL) {
+            // We're in an example subdirectory, try to find the engine resources
+            // by navigating up to the engine root
             
-            // Return to original directory
-            ChangeDirectory(originalDir);
+            // First check two levels up (for examples/ExampleName/)
+            char engineResourceDir[MAX_PATH_LENGTH];
+            snprintf(engineResourceDir, MAX_PATH_LENGTH, "%s/../../resources", currentDir);
+            AddResourceDirectory(engineResourceDir);
+            
+            // Also check three levels up (for safety)
+            snprintf(engineResourceDir, MAX_PATH_LENGTH, "%s/../../../resources", currentDir);
+            AddResourceDirectory(engineResourceDir);
+            
+            // Also check one level up (for direct examples folder)
+            snprintf(engineResourceDir, MAX_PATH_LENGTH, "%s/../resources", currentDir);
+            AddResourceDirectory(engineResourceDir);
+        } else {
+            // We're in the engine root, just add the resources dir
+            AddResourceDirectory("resources");
         }
     }
 }
@@ -66,14 +67,21 @@ bool AddResourceDirectory(const char* directory) {
     
     // Check if directory exists
     if (!DirectoryExists(directory)) {
+        TraceLog(LOG_DEBUG, "Directory does not exist: %s", directory);
         return false;
+    }
+    
+    // Check if this directory is already in our list
+    for (int i = 0; i < numResourceDirs; i++) {
+        if (strcmp(resourceDirs[i], directory) == 0) {
+            // Directory already added
+            return true;
+        }
     }
     
     // Add the directory to our list
     resourceDirs[numResourceDirs] = strdup(directory);
     numResourceDirs++;
-    
-    TraceLog(LOG_INFO, "Added resource directory: %s", directory);
     return true;
 }
 
@@ -97,8 +105,10 @@ const char* GetResourcePath(const char* fileName) {
         }
     }
     
-    // If not found in resource directories, return the original filename
-    // (This allows using paths relative to the current directory as a fallback)
+    // If not found, log the issue
+    TraceLog(LOG_WARNING, "Resource not found in any directory: %s", fileName);
+    
+    // Return the original filename as fallback (this allows direct paths to work)
     return fileName;
 }
 

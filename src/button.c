@@ -2,10 +2,12 @@
 #include "core.h"
 #include "util.h"
 #include <stddef.h>
+#include "external/resource_loader.h"
 
 void drawButtons(Core* core) {
   for (int i = 0; i < core->buttons_size; i++) {
     Button* b = &core->buttons[i];
+    LOAD_FONT(b);
     if (!b->hidden && !sectionHidden(core, b->sec)) {
       Rectangle rec = getTrueRec(core, b->rec, getSection(core, b->sec));
       if (b->image.data != NULL) {
@@ -16,7 +18,7 @@ void drawButtons(Core* core) {
       } else {
         DrawRectangleRec(rec, Fade(LIGHTGRAY, 0.3f));
         DrawRectangleRoundedLinesEx(rec, 0.0f, 0.0f, 1.0f, Fade(BLACK, 0.4f));
-        DrawText(b->text, rec.x + 5, rec.y, 20, RED);
+        DrawTextEx(b->_font, b->text, (Vector2) {rec.x + 5, rec.y}, b->fontSize, 0.0f, RED);
       }
     }
   }
@@ -31,6 +33,9 @@ static void setDefaultButton(Button button, Button* ptr) {
   ptr->sec = button.sec >= 0 ? button.sec : -1;
   ptr->image = button.image;
   ptr->_texture = button._texture;
+  ptr->font = button.font != NULL ? button.font : getDefaultFontResource();
+  ptr->_font = button._font;
+  ptr->fontSize = button.fontSize > 0 ? button.fontSize : 20;
 }
 
 int addButtons(Core* core, Button* buttons, int count) {

@@ -163,7 +163,9 @@ static void initLabels(GameState* gs) {
     .text = gs->texts.flavorText.text,
     .color = BLACK,
     .pos = {15, 5, 70, 100},
-    .sec = secs->optionsArea
+    .sec = secs->optionsArea,
+    .font = "fonts/Merriweather-Regular.ttf",
+    .fontSize = 22
   };
 
   Label ls[] = { flavorText };
@@ -221,7 +223,7 @@ static void setupGameBuilding(GameState* gs, char* name, double cps, double cost
   addBuilding(core, building);
 }
 
-// Example game 1: Mine Hunter
+// Example game 2: Cookie Clicker
 int main(void) {
   GameState gs = {0};
 
@@ -233,10 +235,8 @@ int main(void) {
                                        "nobody wants to eat your cookies.");
 
 
-  SearchAndSetResourceDir("resources");
- 
-  Font merriweather = LoadFontEx("assets/fonts/Merriweather-Regular.ttx", 32, NULL, 0);
-  
+  InitResourcePaths();
+
   initSections(&gs);
   initCurrencies(&gs);
   initButtons(&gs);

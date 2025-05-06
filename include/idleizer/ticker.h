@@ -18,6 +18,9 @@ typedef struct {
   void* ctx;
   int sec;
   bool hidden;
+  char* font;
+  Font _font;
+  int fontSize;
 } Ticker;
 
 int addTickers(Core* core, Ticker* tickers, int count); 

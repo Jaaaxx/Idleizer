@@ -18,6 +18,9 @@ typedef struct {
   bool hidden;
   Image image;
   Texture _texture;
+  char* font;
+  Font _font;
+  int fontSize;
 } Button;
 
 void drawButtons(Core* core);

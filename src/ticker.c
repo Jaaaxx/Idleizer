@@ -1,6 +1,7 @@
 #include "ticker.h"
 #include "core.h"
 #include <string.h>
+#include "external/resource_loader.h"
 
 static void setDefaultTicker(Ticker ticker, Ticker* ptr) {
   ptr->name = ticker.name ? ticker.name : "default_name";
@@ -12,6 +13,9 @@ static void setDefaultTicker(Ticker ticker, Ticker* ptr) {
   ptr->ctx = ticker.ctx ? ticker.ctx : NULL;
   ptr->sec = ticker.sec >= 0 ? ticker.sec : -1;
   ptr->hidden = ticker.hidden;
+  ptr->font = ticker.font != NULL ? ticker.font : getDefaultFontResource();
+  ptr->_font = ticker._font;
+  ptr->fontSize = ticker.fontSize > 0 ? ticker.fontSize : 20;
 }
 
 int addTickers(Core* core, Ticker* tickers, int count) {
@@ -42,6 +46,7 @@ int addTicker(Core* core, Ticker ticker) {
 
 
 void drawTicker(Core* core, Ticker* ticker, Color color) {
+  LOAD_FONT(ticker);
   if (!ticker->hidden && !sectionHidden(core, ticker->sec)) {
     Vector2 vec = getTrueVec(core, ticker->pos, getSection(core, ticker->sec));
     
@@ -55,7 +60,7 @@ void drawTicker(Core* core, Ticker* ticker, Color color) {
     }
     ticker_amount_text[nameLen+ticker->displayTick] = '\0';
     
-    DrawText(ticker_amount_text, vec.x, vec.y, 20, color);
+    DrawTextEx(ticker->_font, ticker_amount_text, (Vector2) {vec.x, vec.y}, ticker->fontSize, 0.0f, color);
   }
 }
 

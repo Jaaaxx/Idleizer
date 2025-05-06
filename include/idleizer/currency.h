@@ -18,6 +18,9 @@ typedef struct {
   bool hidden;
   double cps;
   double perClick;
+  char* font;
+  Font _font;
+  int fontSize;
 } Currency;
 
 int addCurrencies(Core* core, Currency* currencies, int count); 

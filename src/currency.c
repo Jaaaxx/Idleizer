@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "util.h"
+#include "external/resource_loader.h"
 
 typedef struct CurrClickCtx {
   Core* core;
@@ -49,6 +50,9 @@ static void setDefaultCurrency(Currency currency, Currency* ptr) {
   ptr->sec = currency.sec >= 0 ? currency.sec : -1;
   ptr->hidden = currency.hidden;
   ptr->perClick = currency.perClick > 0 ? currency.perClick : 1;
+  ptr->font = currency.font != NULL ? currency.font : getDefaultFontResource();
+  ptr->_font = currency._font;
+  ptr->fontSize = currency.fontSize > 0 ? currency.fontSize : 20;
 }
 
 static void addCurrButton(Core* core, int idx) {
@@ -98,17 +102,19 @@ int addCurrency(Core* core, Currency currency) {
 }
 
 void drawCurrency(Core* core, Currency* c) {
+  LOAD_FONT(c);
   if (!c->hidden && !sectionHidden(core, c->sec)) {
     Vector2 rec = getTrueVec(core, c->pos, getSection(core, c->sec));
 
     char currency_amount_text[256];
     char currency_cps_text[64];
+
     
     sprintf(currency_amount_text, "%s: %.0f", c->name, c->amount);
     sprintf(currency_cps_text, "CPS: %.2f", c->cps);
     
-    DrawText(currency_amount_text, rec.x, rec.y, 20, RED);
-    DrawText(currency_cps_text, rec.x, rec.y + 25, 20, RED);
+    DrawTextEx(c->_font, currency_amount_text, (Vector2) {rec.x, rec.y}, c->fontSize, 0.0f, RED);
+    DrawTextEx(c->_font, currency_cps_text, (Vector2) {rec.x, rec.y + 25}, c->fontSize, 0.0f, RED);
   }
 }
 

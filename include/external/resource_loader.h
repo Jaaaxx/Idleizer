@@ -3,6 +3,12 @@
 
 #include "raylib.h"
 
+#define LOAD_FONT(obj)                                               \
+    do {                                                             \
+        if ((obj)->_font.glyphCount == 0) {                          \
+            (obj)->_font = LoadResourceFont((obj)->font);           \
+        }                                                            \
+    } while (0)
 // Load texture from file with automatic path resolution
 // Searches in all registered resource directories
 Texture2D LoadResourceTexture(const char* fileName);
@@ -14,6 +20,7 @@ Image LoadResourceImage(const char* fileName);
 // Load font from file with automatic path resolution
 // Searches in all registered resource directories
 Font LoadResourceFont(const char* fileName);
+char* getDefaultFontResource();
 
 // Load sound from file with automatic path resolution
 // Searches in all registered resource directories

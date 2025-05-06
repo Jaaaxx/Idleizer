@@ -2,6 +2,10 @@
 #include "external/resource_path.h"
 #include "raylib.h"
 
+char* getDefaultFontResource() {
+  return "fonts/Lato-Regular.ttf";
+}
+
 // Load texture from file with automatic path resolution
 Texture2D LoadResourceTexture(const char* fileName) {
     const char* path = GetResourcePath(fileName);
@@ -16,8 +20,10 @@ Image LoadResourceImage(const char* fileName) {
 
 // Load font from file with automatic path resolution
 Font LoadResourceFont(const char* fileName) {
-    const char* path = GetResourcePath(fileName);
-    return LoadFont(path);
+  const char* path = GetResourcePath(fileName);
+  Font f = LoadFont(path);
+  SetTextureFilter(f.texture, TEXTURE_FILTER_BILINEAR);
+  return f;
 }
 
 // Load sound from file with automatic path resolution

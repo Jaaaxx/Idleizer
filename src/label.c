@@ -1,6 +1,7 @@
 #include "label.h"
 #include "core.h"
 #include "external/text.h"
+#include "external/resource_loader.h"
 #include <stdio.h>
 
 static void setDefaultLabel(Label label, Label* ptr) {
@@ -10,6 +11,8 @@ static void setDefaultLabel(Label label, Label* ptr) {
   ptr->color = label.color;
   ptr->hidden = label.hidden;
   ptr->sec = label.sec >= 0 ? label.sec : -1;
+  ptr->font = label.font != NULL ? label.font : getDefaultFontResource();
+  ptr->_font = label._font;
 }
 
 int addLabels(Core* core, Label* labels, int count) {
@@ -40,14 +43,14 @@ int addLabel(Core* core, Label label) {
 
 void drawLabels(Core* core) {
   for (int i = 0; i < core->labels_size; i++) {
-    const Label* l = &core->labels[i];
+    Label* l = &core->labels[i];
+    LOAD_FONT(l);
     if (!l->hidden && !sectionHidden(core, l->sec)) {
-      Font font = GetFontDefault();
       Rectangle rec = getTrueRec(core, l->pos, getSection(core, l->sec));
       if (rec.width == 0 ) {
-        DrawTextEx(font, l->text, (Vector2) {rec.x, rec.y}, l->fontSize, 1.0f, l->color);
+        DrawTextEx(l->_font, l->text, (Vector2) {rec.x, rec.y}, l->fontSize, 0.0f, l->color);
       } else {
-        DrawTextBoxed(font, l->text, rec, l->fontSize, 1.0f, true, l->color);
+        DrawTextBoxed(l->_font, l->text, rec, l->fontSize, 0.0f, true, l->color);
       }
     }
   }

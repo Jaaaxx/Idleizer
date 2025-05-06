@@ -14,6 +14,8 @@ typedef struct {
   Color color;
   bool hidden;
   int sec;
+  char* font;
+  Font _font;
 } Label;
 
 

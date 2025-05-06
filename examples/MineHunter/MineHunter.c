@@ -231,12 +231,9 @@ int main(void) {
   Core* core = calloc(1, sizeof(Core));
   gs.core = core;
   
-  // Initialize the flavor text buffer
   setTextBuffer(&gs.texts.flavorText, "Welcome to Mine Hunter!");
   
-  // Initialize resource paths before loading any resources
   InitResourcePaths();
-  TraceLog(LOG_INFO, "Resource paths initialized for MineHunter");
  
   initSections(&gs);
   initCurrencies(&gs);
@@ -248,13 +245,6 @@ int main(void) {
   setupGameBuilding(&gs, "Silver Miner", 0.08, 5, gs.currencies->gold, gs.currencies->silver);
   setupGameBuilding(&gs, "Silver Farm", 1.2, 50, gs.currencies->gold, gs.currencies->silver);
   setupGameBuilding(&gs, "Gold Farm", 1.2, 50, gs.currencies->silver, gs.currencies->gold);
-
-  // Test if resource system can find resources
-  if (ResourceExists("images/wabbit_alpha.png")) {
-    TraceLog(LOG_INFO, "Found resource: images/wabbit_alpha.png");
-  } else {
-    TraceLog(LOG_WARNING, "Resource not found: images/wabbit_alpha.png");
-  }
 
   runGame(gs.core, game_width, game_height, "Mine Hunter");
   destroyGameState(&gs);
