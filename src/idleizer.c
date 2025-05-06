@@ -1,7 +1,4 @@
 #include "idleizer.h"
-#include "currency.h"
-#include "button.h"
-#include "util.h"
 
 void runGame(Core* core, int game_width, int game_height, char* title) {
 	// Tell the window to use vsync and work on high DPI displays
@@ -31,6 +28,7 @@ void runGame(Core* core, int game_width, int game_height, char* title) {
 		EndDrawing();
 	}
 
+  CloseResourcePaths();
   freeAll(core);
 	CloseWindow();
 }

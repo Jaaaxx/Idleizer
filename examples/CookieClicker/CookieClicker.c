@@ -232,8 +232,11 @@ int main(void) {
   setTextBuffer(&gs.texts.flavorText, "You feel like making cookies. But " 
                                        "nobody wants to eat your cookies.");
 
+
   SearchAndSetResourceDir("resources");
  
+  Font merriweather = LoadFontEx("assets/fonts/Merriweather-Regular.ttx", 32, NULL, 0);
+  
   initSections(&gs);
   initCurrencies(&gs);
   initButtons(&gs);

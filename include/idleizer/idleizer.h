@@ -20,6 +20,10 @@
 #include "core.h"
 #include "text_buffer.h"
 #include "building.h"
+#include "util.h"
+
+#include "external/resource_path.h"
+#include "external/resource_loader.h"
 
 // Core loop and lifecycle
 void runGame(Core* core, int game_width, int game_height, char* title);

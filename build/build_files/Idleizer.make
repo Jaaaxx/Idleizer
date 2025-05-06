@@ -190,6 +190,8 @@ GENERATED += $(OBJDIR)/currency.o
 GENERATED += $(OBJDIR)/game.o
 GENERATED += $(OBJDIR)/idleizer.o
 GENERATED += $(OBJDIR)/label.o
+GENERATED += $(OBJDIR)/resource_loader.o
+GENERATED += $(OBJDIR)/resource_path.o
 GENERATED += $(OBJDIR)/section.o
 GENERATED += $(OBJDIR)/text.o
 GENERATED += $(OBJDIR)/text_buffer.o
@@ -203,6 +205,8 @@ OBJECTS += $(OBJDIR)/currency.o
 OBJECTS += $(OBJDIR)/game.o
 OBJECTS += $(OBJDIR)/idleizer.o
 OBJECTS += $(OBJDIR)/label.o
+OBJECTS += $(OBJDIR)/resource_loader.o
+OBJECTS += $(OBJDIR)/resource_path.o
 OBJECTS += $(OBJDIR)/section.o
 OBJECTS += $(OBJDIR)/text.o
 OBJECTS += $(OBJDIR)/text_buffer.o
@@ -289,6 +293,12 @@ $(OBJDIR)/idleizer.o: ../../src/idleizer.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/label.o: ../../src/label.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/resource_loader.o: ../../include/external/resource_loader.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/resource_path.o: ../../include/external/resource_path.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/section.o: ../../src/section.c
