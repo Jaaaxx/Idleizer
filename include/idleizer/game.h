@@ -8,5 +8,12 @@
 #include "label.h"
 #include "core.h"
 
+typedef enum MOUSE_EVENT {
+  MOUSE_EVENT_DOWN,
+  MOUSE_EVENT_RELEASE
+} MOUSE_EVENT;
+
+void shutdownMouseEventListeners();
+int addMouseEventListener(int id, int m_b, int m_e, void (*callback)(void*), void* ctx, bool persistent);
 void mouseButtonsHandler(Core* core, int* mouseBtn);
 #endif

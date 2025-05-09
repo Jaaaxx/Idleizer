@@ -85,3 +85,10 @@ void handleTickers(Core* core) {
   }
 }
 
+void unloadTickerResources(Core* core) {
+  for (int i = 0; i < core->tickers_size; i++) {
+    Ticker* ticker = &core->tickers[i];
+    UNLOAD_FONT(ticker);
+  }
+}
+

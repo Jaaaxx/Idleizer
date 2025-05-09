@@ -90,11 +90,68 @@ static void initSections(GameState* gs) {
   gs->sections = gameSects;
 }
 
+typedef struct CookieSizeParams {
+  VrRec newRec;
+  GameState* gs;
+} CookieSizeParams;
+
+static void setCookieSize(void* ctx) {
+  CookieSizeParams* cs = (CookieSizeParams*) ctx;
+  GameState* gs = cs->gs;
+  Core* core = gs->core;
+  Currency* cr = &core->currencies[gs->currencies->cookies];
+  Button* b = &core->buttons[cr->_button];
+  b->rec = cs->newRec;
+}
+
+static void cookieClickHandler(void* ctx) {
+  GameState* gs = (GameState*) ctx;
+  Currency* curr = &gs->core->currencies[gs->currencies->cookies];
+  Button* b = &gs->core->buttons[curr->_button];
+
+  static int listener = -1;
+ 
+  static CookieSizeParams pmNormal = {0};
+  static CookieSizeParams pmShrunk = {0};
+  
+  // Only initialize these parameters once, and make sure the button rect values are valid
+  if (pmNormal.gs == NULL && b != NULL) {
+    // Ensure all rect values are initialized to valid defaults if they're zero
+    VrRec safeRec = b->rec;
+    if (safeRec.x == 0) safeRec.x = 10;
+    if (safeRec.y == 0) safeRec.y = 30;
+    if (safeRec.w == 0) safeRec.w = 80;
+    if (safeRec.h == 0) safeRec.h = 40;
+    
+    pmNormal = (CookieSizeParams) { safeRec, gs };
+    pmShrunk = (CookieSizeParams) { 
+      (VrRec) { 
+        safeRec.x * 1.1, 
+        safeRec.y * 1.05, 
+        safeRec.w * 0.9, 
+        safeRec.h * 0.9 
+      }, 
+      gs 
+    }; 
+  }
+ 
+  setCookieSize(&pmShrunk);
+
+  listener = addMouseEventListener(listener, MOUSE_BUTTON_LEFT, MOUSE_EVENT_RELEASE, 
+                                   setCookieSize, &pmNormal, false);
+
+  curr->amount += curr->perClick;
+}
+
 static void initCurrencies(GameState* gs) {
   Currency cookies = {
     .name = "Cookies",
     .pos = (VrVec) {10, 10},
-    .sec = gs->sections->mainArea
+    .sec = gs->sections->mainArea,
+    .button = (Button) { .rec = (VrRec) {10, 30, 80, 40},
+                         .image = LoadResourceImage("images/cookie.png"),
+                         .handler = cookieClickHandler,
+                         .ctx = gs }
   };
 
   Currency cs[] = { cookies };

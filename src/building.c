@@ -188,3 +188,11 @@ int addBuilding(Core* core, Building building) {
   return core->buildings_size++;
 }
 
+// Note: Buildings don't have direct font members, but we include this function
+// for consistency and to handle any future font resources that might be added
+void unloadBuildingResources(Core* core) {
+  // Buildings use labels, tickers, and buttons which each have their own
+  // resource unloading functions, so we don't need to do anything specific here
+  // This function is included for completeness and future-proofing
+}
+

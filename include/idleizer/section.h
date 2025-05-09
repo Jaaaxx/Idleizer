@@ -12,6 +12,7 @@ typedef struct Section {
   Color bg;
   int parent;
   bool hidden;
+  Image bgImage;
 } Section;
 
 Section* getSection(Core* core, int idx);

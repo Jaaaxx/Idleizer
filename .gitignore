@@ -17,6 +17,8 @@ examples/**/*.out
 examples/**/*.a
 examples/**/MineHunter
 !examples/MineHunter/
+examples/**/CookieClicker
+!examples/CookieClicker/
 
 # Prerequisites
 *.d

@@ -42,11 +42,21 @@ static void destroyCore(Core* core) {
 }
 
 void freeAll(Core* core) {
+  // First unload all resources
+  unloadButtonResources(core);
+  unloadLabelResources(core);
+  unloadCurrencyResources(core);
+  unloadTickerResources(core);
+  unloadBuildingResources(core);
+  
+  // Then free all allocated memory
   freeAllBuildings(core);
   cleanupCpsResources();
+  shutdownMouseEventListeners();
   cleanupSectionHideResources();
   freeCurrencyContexts();
-  unloadButtonResources(core);
+  
+  // Finally destroy the core structure
   destroyCore(core);
   printf("Freed all engine memory\n");
 }

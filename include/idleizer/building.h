@@ -71,6 +71,7 @@ typedef struct Building {
 } Building;
 
 void freeAllBuildings(Core* core);
+void unloadBuildingResources(Core* core);
 VrVec calcBuildingOffsetPos(int buildings_size, int startX, int startY, int yOffset);
 int addBuilding(Core* core, Building building);
 Building newBuilding(Core* core);

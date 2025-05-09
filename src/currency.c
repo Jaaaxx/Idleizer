@@ -42,12 +42,24 @@ static void setDefaultCurrency(Currency currency, Currency* ptr) {
   ptr->name = currency.name ? currency.name : "default_name";
   ptr->amount = currency.amount;
   ptr->pos = currency.pos;
-  ptr->buttonRec = currency.buttonRec.x != 0 || currency.buttonRec.y != 0 ||
-                   currency.buttonRec.w != 0 || currency.buttonRec.h != 0 ? currency.buttonRec :
-                                                                    (VrRec) { ptr->pos.x,
-                                                                              ptr->pos.y + 20,
-                                                                              30, 10 };
+  
+  // Default initialization for _button field to prevent issues with uninitialized values
+  ptr->_button = -1;
+  
+  // Copy button properties
+  ptr->button = currency.button;
+  ptr->button.text = currency.button.text != NULL ? currency.button.text : ptr->name;
+  
+  // Ensure button rectangle has valid values
+  if (currency.button.rec.x == 0 && currency.button.rec.y == 0 &&
+      currency.button.rec.w == 0 && currency.button.rec.h == 0) {
+    ptr->button.rec = (VrRec) { ptr->pos.x, ptr->pos.y + 20, 30, 10 };
+  } else {
+    ptr->button.rec = currency.button.rec;
+  }
+  
   ptr->sec = currency.sec >= 0 ? currency.sec : -1;
+  ptr->button.sec = currency.button.sec > 0 ? currency.button.sec : ptr->sec;
   ptr->hidden = currency.hidden;
   ptr->perClick = currency.perClick > 0 ? currency.perClick : 1;
   ptr->font = currency.font != NULL ? currency.font : getDefaultFontResource();
@@ -56,21 +68,26 @@ static void setDefaultCurrency(Currency currency, Currency* ptr) {
 }
 
 static void addCurrButton(Core* core, int idx) {
-  CurrClickCtx* ctx = malloc(sizeof(CurrClickCtx));
-  ctx->core = core;
-  ctx->currency = idx;
-  
-  // Track this context
-  track_curr_context(ctx);
+  Currency* curr = &core->currencies[idx];
 
-  Currency curr = core->currencies[idx];
-  VrVec pos = curr.pos;
+  if (curr->button.ctx == NULL) {
+    CurrClickCtx* ctx = (CurrClickCtx*) malloc(sizeof(CurrClickCtx));
 
-  addButton(core, (Button) { .text = curr.name,
-                             .rec = curr.buttonRec,
-                             .handler = defClickHandler,
-                             .ctx = ctx,
-                             .sec = curr.sec });
+    ctx->core = core;
+    ctx->currency = idx;
+
+    curr->button.ctx = ctx;
+    curr->button.handler = defClickHandler;
+    // Track this context for memory management
+    track_curr_context(ctx);
+  }
+
+  if (curr->button.rec.x == 0 && curr->button.rec.y == 0 && 
+      curr->button.rec.w == 0 && curr->button.rec.h == 0) {
+    curr->button.rec = (VrRec) { curr->pos.x, curr->pos.y + 20, 30, 10 };
+  }
+
+  curr->_button = addButton(core, curr->button);
 }
 
 int addCurrencies(Core* core, Currency* currencies, int count) {
@@ -133,6 +150,13 @@ void handleCurrencies(Core* core) {
       tick = 0;
     }
     drawCurrency(core, c);
+  }
+}
+
+void unloadCurrencyResources(Core* core) {
+  for (int i = 0; i < core->currencies_size; i++) {
+    Currency* currency = &core->currencies[i];
+    UNLOAD_FONT(currency);
   }
 }
 

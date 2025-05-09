@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "vr_vec.h"
 #include "section.h"
+#include "button.h"
 #include <stdbool.h>
 
 #include <stdlib.h>
@@ -13,7 +14,8 @@ typedef struct {
   char* name;
   double amount;
   VrVec pos;
-  VrRec buttonRec;
+  int _button;
+  Button button;
   int sec;
   bool hidden;
   double cps;
@@ -29,5 +31,6 @@ void freeCurrencyContexts();
 void drawCurrency(Core* core, Currency* c);
 void drawCurrencies(Core* core);
 void handleCurrencies(Core* core);
+void unloadCurrencyResources(Core* core);
 
 #endif

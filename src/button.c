@@ -77,6 +77,8 @@ void unloadButtonResources(Core* core) {
       UnloadImage(button->image);
       button->image.data = NULL;
     }
+
+    UnloadFont(button->_font);
   }
 }
 

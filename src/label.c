@@ -55,3 +55,10 @@ void drawLabels(Core* core) {
     }
   }
 }
+
+void unloadLabelResources(Core* core) {
+  for (int i = 0; i < core->labels_size; i++) {
+    Label* label = &core->labels[i];
+    UNLOAD_FONT(label);
+  }
+}
