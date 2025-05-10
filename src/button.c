@@ -3,11 +3,13 @@
 #include "util.h"
 #include <stddef.h>
 #include "external/resource_loader.h"
+#include <stdio.h>
 
 void drawButtons(Core* core) {
   for (int i = 0; i < core->buttons_size; i++) {
     Button* b = &core->buttons[i];
-    LOAD_FONT(b);
+    Label* l = &b->label;
+    LOAD_FONT(l);
     if (!b->hidden && !sectionHidden(core, b->sec)) {
       Rectangle rec = getTrueRec(core, b->rec, getSection(core, b->sec));
       if (b->image.data != NULL) {
@@ -18,7 +20,8 @@ void drawButtons(Core* core) {
       } else {
         DrawRectangleRec(rec, Fade(LIGHTGRAY, 0.3f));
         DrawRectangleRoundedLinesEx(rec, 0.0f, 0.0f, 1.0f, Fade(BLACK, 0.4f));
-        DrawTextEx(b->_font, b->text, (Vector2) {rec.x + 5, rec.y}, b->fontSize, 0.0f, RED);
+        Rectangle lrec = getTrueRec(core, l->pos, getSection(core, l->sec));
+        DrawTextEx(l->_font, l->text, (Vector2) {lrec.x, lrec.y}, l->fontSize, 0, l->color);
       }
     }
   }
@@ -33,10 +36,16 @@ static void setDefaultButton(Button button, Button* ptr) {
   ptr->sec = button.sec >= 0 ? button.sec : -1;
   ptr->image = button.image;
   ptr->_texture = button._texture;
-  ptr->font = button.font != NULL ? button.font : getDefaultFontResource();
-  ptr->_font = button._font;
-  ptr->fontSize = button.fontSize > 0 ? button.fontSize : 20;
-}
+  ptr->label = button.label;
+  ptr->label.text = button.label.text != NULL ? button.label.text : ptr->text;
+  ptr->label.color = button.label.color.r != 0 || button.label.color.g != 0 ||
+                        button.label.color.b != 0 ? button.label.color : BLACK;
+  ptr->label.font = button.label.font != NULL ? button.label.font : getDefaultFontResource();
+  ptr->label.fontSize = button.label.fontSize != 0 ? button.label.fontSize : 20;
+  ptr->label.pos = button.label.pos.x != 0 || button.label.pos.y != 0 ? button.label.pos :
+                                                          (VrRec) {ptr->rec.x+1, ptr->rec.y};
+  ptr->label.sec = button.label.sec != 0 ? button.label.sec : ptr->sec;
+} 
 
 int addButtons(Core* core, Button* buttons, int count) {
   if (core->buttons == NULL) {
@@ -78,7 +87,7 @@ void unloadButtonResources(Core* core) {
       button->image.data = NULL;
     }
 
-    UnloadFont(button->_font);
+    UNLOAD_FONT(&button->label);
   }
 }
 

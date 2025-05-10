@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "vr_rec.h"
 #include "section.h"
+#include "label.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -18,9 +19,7 @@ typedef struct {
   bool hidden;
   Image image;
   Texture _texture;
-  char* font;
-  Font _font;
-  int fontSize;
+  Label label;
 } Button;
 
 void drawButtons(Core* core);
