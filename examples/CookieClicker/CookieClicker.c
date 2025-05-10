@@ -11,6 +11,7 @@ typedef struct {
 typedef struct GameSections {
   int gameArea;
   int mainArea;
+  int upgradesArea;
   int shopArea;
   int displayArea;
   int optionsArea;
@@ -72,13 +73,18 @@ static void initSections(GameState* gs) {
     .bg = PURPLE,
     .parent = 0
   };
+  Section upgradesArea = {
+    .rec = {75, 0, 25, 15},
+    .bg = darkBlue,
+    .parent = 0
+  };
   Section shopArea = {
-    .rec = {75, 0, 25, 100},
+    .rec = {75, 15, 25, 85},
     .bg = darkBlue,
     .parent = 0
   };
 
-  Section ss[] = { gameArea, mainArea, displayArea, optionsArea, shopArea };
+  Section ss[] = { gameArea, mainArea, displayArea, optionsArea, upgradesArea, shopArea };
   int idx = addSections(gs->core, ss, ARRAY_LEN(ss));
 
   GameSections* gameSects = malloc(sizeof(GameSections));
@@ -86,7 +92,8 @@ static void initSections(GameState* gs) {
   gameSects->mainArea     = idx + 1;
   gameSects->displayArea  = idx + 2;
   gameSects->optionsArea  = idx + 3;
-  gameSects->shopArea     = idx + 4;
+  gameSects->upgradesArea = idx + 4;
+  gameSects->shopArea     = idx + 5;
   gs->sections = gameSects;
 }
 
@@ -182,6 +189,25 @@ static void statsHandler(void* ctx) {
   toggleSectionHide(gs->core, gs->sections->displayArea);
 }
 
+typedef struct UpgradeContext {
+  GameState* gs;
+  int button;
+} UpgradeContext;
+
+static void doubleCPSHandler(void* ctx) {
+  UpgradeContext* uctx = (UpgradeContext*) ctx;
+  GameState* gs = uctx->gs;
+  static bool bought = false;
+  Currency* curr = &gs->core->currencies[gs->currencies->cookies];
+  if (!bought && curr->amount >= 100) {
+    curr->amount -= 100;
+    curr->cpsMult += 1;
+    bought = true;
+    gs->core->buttons[uctx->button].hidden = true;
+  }
+  free(ctx);
+}
+
 static void initButtons(GameState* gs) {
   Button options = {
     .text = "Options",
@@ -210,7 +236,19 @@ static void initButtons(GameState* gs) {
     .sec = gs->sections->optionsArea
   };
 
-  Button bs[] = { options, stats, info, legacy };
+  UpgradeContext* uctx = malloc(sizeof(UpgradeContext));
+  uctx->gs = gs;
+  uctx->button = 5;
+
+  Button upgrade1 = {
+    .text = "Double CPS",
+    .rec = (VrRec) {10, 10, 20, 40},
+    .sec = gs->sections->upgradesArea,
+    .handler = doubleCPSHandler,
+    .ctx = uctx
+  };
+
+  Button bs[] = { options, stats, info, legacy, upgrade1 };
   addButtons(gs->core, bs, ARRAY_LEN(bs));
 }
 

@@ -47,7 +47,8 @@ static void defBuildTicker(void* context) {
   BuildingCtx* ctx = (BuildingCtx*) context;
   Building* b = &(ctx->core->buildings[ctx->idx]);
   Currency* currs = ctx->core->currencies;
-  currs[b->gCurr].amount += ((double) b->vals.amount) * b->vals.cps / 10.0;
+  Currency* gCurr = &currs[b->gCurr];
+  gCurr->amount += (((double) b->vals.amount) * b->vals.cps / 10.0) * gCurr->cpsMult;
 }
 
 static void defBuildingUpdateLabels(Building* ctx) {

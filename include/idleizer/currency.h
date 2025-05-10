@@ -20,6 +20,7 @@ typedef struct {
   bool hidden;
   double cps;
   double perClick;
+  double cpsMult;
   Label amountLabel;
   Label cpsLabel;
 } Currency;

@@ -42,6 +42,7 @@ static void setDefaultCurrency(Currency currency, Currency* ptr) {
   ptr->name = currency.name ? currency.name : "default_name";
   ptr->amount = currency.amount;
   ptr->pos = currency.pos;
+  ptr->cpsMult = currency.cpsMult != 0 ? currency.cpsMult : 1;
   
   // Default initialization for _button field to prevent issues with uninitialized values
   ptr->_button = -1;

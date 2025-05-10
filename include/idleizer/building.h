@@ -9,6 +9,8 @@
 #include "button.h"
 #include "label.h"
 
+// TODO Allow creators to pass in full Ticker, Label, Etc. objects instead of creating them internally
+
 typedef struct BPosVec {
   VrVec pos;
   int sec;
