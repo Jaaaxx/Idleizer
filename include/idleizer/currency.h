@@ -14,16 +14,14 @@ typedef struct {
   char* name;
   double amount;
   VrVec pos;
-  int _button;
   Button button;
+  int _button;
   int sec;
   bool hidden;
   double cps;
   double perClick;
   Label amountLabel;
-  int _amountLabel;
   Label cpsLabel;
-  int _cpsLabel;
 } Currency;
 
 int addCurrencies(Core* core, Currency* currencies, int count); 

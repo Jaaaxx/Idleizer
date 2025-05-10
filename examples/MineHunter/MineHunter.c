@@ -89,12 +89,14 @@ static void initCurrencies(GameState* gs) {
   Currency gold = {
     .name = "Gold",
     .pos = (VrVec) {10, 10},
-    .sec = gs->sections->mainArea
+    .sec = gs->sections->mainArea,
+    .amountLabel = (Label) { .color = RED }
   };
   Currency silver = {
     .name = "Silver",
     .pos = (VrVec) {60, 10},
-    .sec = gs->sections->mainArea
+    .sec = gs->sections->mainArea,
+    .amountLabel = (Label) { .color = RED }
   };
 
   Currency cs[] = { gold, silver };

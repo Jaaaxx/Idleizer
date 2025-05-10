@@ -13,9 +13,18 @@ static void setDefaultTicker(Ticker ticker, Ticker* ptr) {
   ptr->ctx = ticker.ctx ? ticker.ctx : NULL;
   ptr->sec = ticker.sec >= 0 ? ticker.sec : -1;
   ptr->hidden = ticker.hidden;
-  ptr->font = ticker.font != NULL ? ticker.font : getDefaultFontResource();
-  ptr->_font = ticker._font;
-  ptr->fontSize = ticker.fontSize > 0 ? ticker.fontSize : 20;
+  ptr->label = ticker.label;
+  ptr->label.color = ticker.label.color.r != 0 || ticker.label.color.g != 0 ||
+                        ticker.label.color.b != 0 ? ticker.label.color : BLACK;
+  ptr->label.font = ticker.label.font != NULL ? ticker.label.font 
+                                                            : getDefaultFontResource();
+  ptr->label.fontSize = ticker.label.fontSize != 0 ? ticker.label.fontSize
+                                                                 : 20;
+  ptr->label.pos = ticker.label.pos.x != 0 || ticker.label.pos.y != 0 ?
+                                                          ticker.label.pos :
+                                                          (VrRec) {ptr->pos.x, ptr->pos.y};
+  ptr->label.sec = ticker.label.sec != 0 ? ticker.label.sec : ptr->sec;
+ 
 }
 
 int addTickers(Core* core, Ticker* tickers, int count) {
@@ -46,9 +55,9 @@ int addTicker(Core* core, Ticker ticker) {
 
 
 void drawTicker(Core* core, Ticker* ticker, Color color) {
-  LOAD_FONT(ticker);
+  LOAD_FONT(&ticker->label);
   if (!ticker->hidden && !sectionHidden(core, ticker->sec)) {
-    Vector2 vec = getTrueVec(core, ticker->pos, getSection(core, ticker->sec));
+    Rectangle rec = getTrueRec(core, ticker->label.pos, getSection(core, ticker->label.sec));
     
     char ticker_amount_text[256];
     
@@ -59,8 +68,8 @@ void drawTicker(Core* core, Ticker* ticker, Color color) {
       ticker_amount_text[nameLen+i] = '.';
     }
     ticker_amount_text[nameLen+ticker->displayTick] = '\0';
-    
-    DrawTextEx(ticker->_font, ticker_amount_text, (Vector2) {vec.x, vec.y}, ticker->fontSize, 0.0f, color);
+    Label tl = ticker->label;
+    DrawTextEx(tl._font, ticker_amount_text, (Vector2) {rec.x, rec.y}, tl.fontSize, 0, tl.color);
   }
 }
 
@@ -88,7 +97,7 @@ void handleTickers(Core* core) {
 void unloadTickerResources(Core* core) {
   for (int i = 0; i < core->tickers_size; i++) {
     Ticker* ticker = &core->tickers[i];
-    UNLOAD_FONT(ticker);
+    UNLOAD_FONT(&ticker->label);
   }
 }
 

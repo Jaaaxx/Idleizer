@@ -107,6 +107,7 @@ static void addCurrButton(Core* core, int idx) {
   }
 
   curr->_button = addButton(core, curr->button);
+  curr->button = (Button) {0};
 }
 
 int addCurrencies(Core* core, Currency* currencies, int count) {

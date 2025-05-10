@@ -1,8 +1,9 @@
 #ifndef TICKER_H
 #define TICKER_H
 #include "vr_vec.h"
-#include <stdbool.h>
+#include "label.h"
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 typedef struct Core Core;
@@ -18,9 +19,7 @@ typedef struct {
   void* ctx;
   int sec;
   bool hidden;
-  char* font;
-  Font _font;
-  int fontSize;
+  Label label;
 } Ticker;
 
 int addTickers(Core* core, Ticker* tickers, int count); 
