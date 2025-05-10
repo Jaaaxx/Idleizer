@@ -146,12 +146,14 @@ static void cookieClickHandler(void* ctx) {
 static void initCurrencies(GameState* gs) {
   Currency cookies = {
     .name = "Cookies",
-    .pos = (VrVec) {10, 10},
+    .pos = (VrVec) {30, 10},
     .sec = gs->sections->mainArea,
     .button = (Button) { .rec = (VrRec) {10, 30, 80, 40},
                          .image = LoadResourceImage("images/cookie.png"),
                          .handler = cookieClickHandler,
-                         .ctx = gs }
+                         .ctx = gs },
+    .amountLabel = (Label) { .fontSize = 30, },
+    .cpsLabel = (Label) { .fontSize = 25, .color = DARKGRAY }
   };
 
   Currency cs[] = { cookies };

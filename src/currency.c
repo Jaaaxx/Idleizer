@@ -58,13 +58,32 @@ static void setDefaultCurrency(Currency currency, Currency* ptr) {
     ptr->button.rec = currency.button.rec;
   }
   
-  ptr->sec = currency.sec >= 0 ? currency.sec : -1;
+  ptr->sec = currency.sec != 0 ? currency.sec : -1;
   ptr->button.sec = currency.button.sec > 0 ? currency.button.sec : ptr->sec;
   ptr->hidden = currency.hidden;
   ptr->perClick = currency.perClick > 0 ? currency.perClick : 1;
-  ptr->font = currency.font != NULL ? currency.font : getDefaultFontResource();
-  ptr->_font = currency._font;
-  ptr->fontSize = currency.fontSize > 0 ? currency.fontSize : 20;
+  ptr->amountLabel = currency.amountLabel;
+  ptr->amountLabel.color = currency.amountLabel.color.r != 0 || currency.amountLabel.color.g != 0 ||
+                        currency.amountLabel.color.b != 0 ? currency.amountLabel.color : BLACK;
+  ptr->amountLabel.font = currency.amountLabel.font != NULL ? currency.amountLabel.font 
+                                                            : getDefaultFontResource();
+  ptr->amountLabel.fontSize = currency.amountLabel.fontSize != 0 ? currency.amountLabel.fontSize
+                                                                 : 20;
+  ptr->amountLabel.pos = currency.amountLabel.pos.x != 0 || currency.amountLabel.pos.y != 0 ?
+                                                          currency.amountLabel.pos :
+                                                          (VrRec) {ptr->pos.x, ptr->pos.y};
+  ptr->amountLabel.sec = currency.amountLabel.sec != 0 ? currency.amountLabel.sec : ptr->sec;
+  ptr->cpsLabel = currency.cpsLabel;
+  ptr->cpsLabel.color = currency.cpsLabel.color.r != 0 || currency.cpsLabel.color.g != 0 ||
+                        currency.cpsLabel.color.b != 0 ? currency.cpsLabel.color : BLACK;
+  ptr->cpsLabel.font = currency.cpsLabel.font != NULL ? currency.cpsLabel.font 
+                                                      : getDefaultFontResource();
+  ptr->cpsLabel.fontSize = currency.cpsLabel.fontSize != 0 ? currency.cpsLabel.fontSize
+                                                           : 20;
+  ptr->cpsLabel.pos= currency.cpsLabel.pos.x != 0 || currency.cpsLabel.pos.y != 0 ?
+                                                          currency.cpsLabel.pos:
+                                                          (VrRec) {ptr->pos.x, ptr->pos.y+3};
+  ptr->cpsLabel.sec = currency.cpsLabel.sec != 0 ? currency.cpsLabel.sec : ptr->sec;
 }
 
 static void addCurrButton(Core* core, int idx) {
@@ -119,19 +138,23 @@ int addCurrency(Core* core, Currency currency) {
 }
 
 void drawCurrency(Core* core, Currency* c) {
-  LOAD_FONT(c);
+  LOAD_FONT(&c->amountLabel);
+  LOAD_FONT(&c->cpsLabel);
+
   if (!c->hidden && !sectionHidden(core, c->sec)) {
-    Vector2 rec = getTrueVec(core, c->pos, getSection(core, c->sec));
+    Rectangle amountRec = getTrueRec(core, c->amountLabel.pos, getSection(core, c->amountLabel.sec));
+    Rectangle cpsRec = getTrueRec(core, c->cpsLabel.pos, getSection(core, c->cpsLabel.sec));
 
     char currency_amount_text[256];
     char currency_cps_text[64];
 
-    
     sprintf(currency_amount_text, "%s: %.0f", c->name, c->amount);
     sprintf(currency_cps_text, "CPS: %.2f", c->cps);
     
-    DrawTextEx(c->_font, currency_amount_text, (Vector2) {rec.x, rec.y}, c->fontSize, 0.0f, RED);
-    DrawTextEx(c->_font, currency_cps_text, (Vector2) {rec.x, rec.y + 25}, c->fontSize, 0.0f, RED);
+    DrawTextEx(c->amountLabel._font, currency_amount_text, (Vector2) {amountRec.x, amountRec.y}, 
+               c->amountLabel.fontSize, 0.0f, c->amountLabel.color);
+    DrawTextEx(c->cpsLabel._font, currency_cps_text, (Vector2) {cpsRec.x, cpsRec.y}, 
+               c->cpsLabel.fontSize, 0.0f, c->cpsLabel.color);
   }
 }
 
@@ -156,7 +179,8 @@ void handleCurrencies(Core* core) {
 void unloadCurrencyResources(Core* core) {
   for (int i = 0; i < core->currencies_size; i++) {
     Currency* currency = &core->currencies[i];
-    UNLOAD_FONT(currency);
+    UNLOAD_FONT(&currency->amountLabel);
+    UNLOAD_FONT(&currency->cpsLabel);
   }
 }
 

@@ -4,8 +4,8 @@
 #include "vr_vec.h"
 #include "section.h"
 #include "button.h"
+#include "label.h"
 #include <stdbool.h>
-
 #include <stdlib.h>
 
 typedef struct Core Core;
@@ -20,9 +20,10 @@ typedef struct {
   bool hidden;
   double cps;
   double perClick;
-  char* font;
-  Font _font;
-  int fontSize;
+  Label amountLabel;
+  int _amountLabel;
+  Label cpsLabel;
+  int _cpsLabel;
 } Currency;
 
 int addCurrencies(Core* core, Currency* currencies, int count); 
