@@ -29,6 +29,7 @@ void runGame(Core* core, int game_width, int game_height, char* title) {
 		EndDrawing();
 	}
 
+  CloseAudioDevice();
   CloseResourcePaths();
   freeAll(core);
 	CloseWindow();

@@ -257,6 +257,7 @@ static void doubleCPSHandler(void* ctx) {
   }
 }
 
+UpgradeContext* uctx = NULL;
 static void initButtons(GameState* gs) {
   Button options = {
     .text = "Options",
@@ -285,7 +286,9 @@ static void initButtons(GameState* gs) {
     .sec = gs->sections->optionsArea
   };
 
-  UpgradeContext* uctx = malloc(sizeof(UpgradeContext));
+  if (uctx == NULL) {
+    uctx = malloc(sizeof(UpgradeContext));
+  }
   uctx->gs = gs;
   uctx->button = 5;
 
@@ -352,6 +355,11 @@ static void destroyGameState(GameState* gs) {
     UnloadResourceSound(clickNoises[6]);
     free(clickNoises);
     clickNoises = NULL;
+  }
+
+  if (uctx != NULL) {
+    free(uctx);
+    uctx = NULL;
   }
 
   free(gs->core);
