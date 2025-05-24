@@ -7,6 +7,7 @@ void runGame(Core* core, int game_width, int game_height, char* title) {
 
 	// Create the window and OpenGL context
 	InitWindow(game_width, game_height, title);
+  InitAudioDevice();
 
   int mouseBtn = -1;
   // game loop

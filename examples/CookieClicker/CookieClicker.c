@@ -144,6 +144,8 @@ static void cookieHoverHandler(HoverState state, void* ctx) {
   }
 }
 
+static Sound* clickNoises = NULL;
+
 static void cookieClickHandler(void* ctx) {
   GameState* gs = (GameState*) ctx;
   Currency* curr = &gs->core->currencies[gs->currencies->cookies];
@@ -172,6 +174,20 @@ static void cookieClickHandler(void* ctx) {
       gs 
     }; 
   }
+
+
+  if (clickNoises == NULL) {
+    clickNoises = malloc(sizeof(Sound) * 7);
+    clickNoises[0] = LoadResourceSound("sounds/click1.wav");
+    clickNoises[1] = LoadResourceSound("sounds/click2.wav");
+    clickNoises[2] = LoadResourceSound("sounds/click3.wav");
+    clickNoises[3] = LoadResourceSound("sounds/click4.wav");
+    clickNoises[4] = LoadResourceSound("sounds/click5.wav");
+    clickNoises[5] = LoadResourceSound("sounds/click6.wav");
+    clickNoises[6] = LoadResourceSound("sounds/click7.wav");
+  }
+  Sound cn = clickNoises[GetRandomValue(0, 6)];
+  PlaySound(cn);
  
   setCookieSize(&pmShrunk);
 
@@ -324,6 +340,18 @@ static void destroyGameState(GameState* gs) {
   if (gs->currencies) {
     free(gs->currencies);
     gs->currencies = NULL;
+  }
+
+  if (clickNoises != NULL) {
+    UnloadResourceSound(clickNoises[0]);
+    UnloadResourceSound(clickNoises[1]);
+    UnloadResourceSound(clickNoises[2]);
+    UnloadResourceSound(clickNoises[3]);
+    UnloadResourceSound(clickNoises[4]);
+    UnloadResourceSound(clickNoises[5]);
+    UnloadResourceSound(clickNoises[6]);
+    free(clickNoises);
+    clickNoises = NULL;
   }
 
   free(gs->core);
