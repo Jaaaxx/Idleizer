@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 typedef struct Core Core;
+typedef enum HoverState HoverState;
 
 typedef struct {
   char* text;
@@ -18,6 +19,11 @@ typedef struct {
   int sec;
   bool hidden;
   Image image;
+  Color bgColor;
+  Color bgColor_hover;
+  void (*hoverHandler)(HoverState, void*);
+  void* hoverCtx;
+  bool _hovered;
   Texture _texture;
   Label label;
 } Button;

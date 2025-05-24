@@ -1,6 +1,7 @@
 #include "button.h"
 #include "core.h"
 #include "util.h"
+#include "game.h"
 #include <stddef.h>
 #include "external/resource_loader.h"
 #include <stdio.h>
@@ -18,7 +19,7 @@ void drawButtons(Core* core) {
         }
         DrawTextureCentered(b->_texture, rec);
       } else {
-        DrawRectangleRec(rec, Fade(LIGHTGRAY, 0.3f));
+        DrawRectangleRec(rec, Fade(!b->_hovered ? b->bgColor : b->bgColor_hover, 0.3f));
         DrawRectangleRoundedLinesEx(rec, 0.0f, 0.0f, 1.0f, Fade(BLACK, 0.4f));
         Rectangle lrec = getTrueRec(core, l->pos, getSection(core, l->sec));
         DrawTextEx(l->_font, l->text, (Vector2) {lrec.x, lrec.y}, l->fontSize, 0, l->color);
@@ -27,13 +28,28 @@ void drawButtons(Core* core) {
   }
 }
 
+void NOOP_HANDLER(void* ctx) {
+  // intentionally does nothing
+}
+
+void NOOP_HOVER_HANDLER(HoverState h, void* ctx) {
+  // intentionally does nothing
+}
+
 static void setDefaultButton(Button button, Button* ptr) {
   ptr->text = button.text ? button.text : "default text";
   ptr->rec = button.rec;
-  ptr->handler = button.handler ? button.handler : NULL;
+  ptr->handler = button.handler ? button.handler : NOOP_HANDLER;
   ptr->ctx = button.ctx ? button.ctx : NULL;
   ptr->hidden = button.hidden;
   ptr->sec = button.sec >= 0 ? button.sec : -1;
+  ptr->bgColor = button.bgColor.r != 0 || button.bgColor.g != 0 ||
+                        button.bgColor.b != 0 ? button.bgColor : LIGHTGRAY;
+  ptr->bgColor_hover =  button.bgColor_hover.r != 0 || button.bgColor_hover.g != 0 ||
+                        button.bgColor_hover.b != 0 ? button.bgColor_hover : DARKGRAY;
+  ptr->hoverHandler = button.hoverHandler ? button.hoverHandler : NOOP_HOVER_HANDLER;
+  ptr->hoverCtx = button.hoverCtx ? button.hoverCtx : NULL;
+  ptr->_hovered = button._hovered;
   ptr->image = button.image;
   ptr->_texture = button._texture;
   ptr->label = button.label;

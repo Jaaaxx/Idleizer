@@ -33,10 +33,10 @@ void shutdownMouseEventListeners() {
 int addMouseEventListener(int id, int m_b, int m_e, void (*callback)(void*), void* ctx, bool persistent) {
   if (id == -1) {
     listeners = realloc(listeners, sizeof(MouseEventListener) * (listenersSize+1));
-    listeners[listenersSize] = (MouseEventListener) { m_b, m_e, callback, ctx, persistent, true };
+    listeners[listenersSize] = (MouseEventListener) { m_b, m_e, callback, ctx, persistent, true, false };
     return listenersSize++;
   } else {
-    listeners[id] = (MouseEventListener) { m_b, m_e, callback, ctx, persistent, true };
+    listeners[id] = (MouseEventListener) { m_b, m_e, callback, ctx, persistent, true, false };
     return id;
   }
 }
@@ -72,8 +72,20 @@ void mouseButtonsHandler(Core* core, int* mouseBtn) {
     Button* b = &core->buttons[i];
     if (b->hidden || sectionHidden(core, b->sec)) continue;
     Rectangle rec = getTrueRec(core, b->rec, getSection(core, b->sec));
-    if (CheckCollisionPointRec(GetMousePosition(), rec)) {
+    bool mouseInRec = CheckCollisionPointRec(GetMousePosition(), rec);
+    bool wasHovered = b->_hovered;
+    b->_hovered = false;
+
+    if (wasHovered && !mouseInRec) {
+      b->hoverHandler(HOVER_EXIT, b->hoverCtx);
+    }
+
+    if (mouseInRec) {
       mouseCursor = mouseCursor == CLICK_CURSOR ? mouseCursor : MOUSE_CURSOR_POINTING_HAND;
+      b->_hovered = true;
+      if (!wasHovered) {
+        b->hoverHandler(HOVER_ENTER, b->hoverCtx);
+      }
       if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && *mouseBtn != 1) {
         if (b->handler) {
           b->handler(b->ctx);

@@ -111,6 +111,39 @@ static void setCookieSize(void* ctx) {
   b->rec = cs->newRec;
 }
 
+static void cookieHoverHandler(HoverState state, void* ctx) {
+  GameState* gs = (GameState*) ctx;
+  Currency* curr = &gs->core->currencies[gs->currencies->cookies];
+  Button* b = &gs->core->buttons[curr->_button];
+ 
+  static CookieSizeParams pmNormal = {0};
+  static CookieSizeParams pmGrown = {0};
+  
+  if (pmNormal.gs == NULL && b != NULL) {
+    VrRec safeRec = b->rec;
+    if (safeRec.x == 0) safeRec.x = 10;
+    if (safeRec.y == 0) safeRec.y = 30;
+    if (safeRec.w == 0) safeRec.w = 80;
+    if (safeRec.h == 0) safeRec.h = 40;
+    
+    pmNormal = (CookieSizeParams) { safeRec, gs };
+    pmGrown = (CookieSizeParams) { 
+      (VrRec) { 
+        safeRec.x * 0.9, 
+        safeRec.y * 0.95, 
+        safeRec.w * 1.05, 
+        safeRec.h * 1.05 
+      }, 
+      gs 
+    }; 
+  }
+  if (state == HOVER_ENTER) {
+    setCookieSize(&pmGrown);
+  } else {
+    setCookieSize(&pmNormal);
+  }
+}
+
 static void cookieClickHandler(void* ctx) {
   GameState* gs = (GameState*) ctx;
   Currency* curr = &gs->core->currencies[gs->currencies->cookies];
@@ -121,9 +154,7 @@ static void cookieClickHandler(void* ctx) {
   static CookieSizeParams pmNormal = {0};
   static CookieSizeParams pmShrunk = {0};
   
-  // Only initialize these parameters once, and make sure the button rect values are valid
   if (pmNormal.gs == NULL && b != NULL) {
-    // Ensure all rect values are initialized to valid defaults if they're zero
     VrRec safeRec = b->rec;
     if (safeRec.x == 0) safeRec.x = 10;
     if (safeRec.y == 0) safeRec.y = 30;
@@ -158,7 +189,9 @@ static void initCurrencies(GameState* gs) {
     .button = (Button) { .rec = (VrRec) {10, 30, 80, 40},
                          .image = LoadResourceImage("images/cookie.png"),
                          .handler = cookieClickHandler,
-                         .ctx = gs },
+                         .ctx = gs,
+                         .hoverHandler = cookieHoverHandler,
+                         .hoverCtx = gs },
     .amountLabel = (Label) { .fontSize = 30, },
     .cpsLabel = (Label) { .fontSize = 25, .color = DARKGRAY }
   };
@@ -204,8 +237,8 @@ static void doubleCPSHandler(void* ctx) {
     curr->cpsMult += 1;
     bought = true;
     gs->core->buttons[uctx->button].hidden = true;
+    free(ctx);
   }
-  free(ctx);
 }
 
 static void initButtons(GameState* gs) {
